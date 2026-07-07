@@ -1,0 +1,8 @@
+openpyxl
+pandas
+numpy
+faker
+python-dateutil
+pytest
+black
+ruff
