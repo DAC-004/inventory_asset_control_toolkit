@@ -1,0 +1,168 @@
+================================================================================
+WORKBOOK AUDIT REPORT
+================================================================================
+Workbook path: C:\Users\cruzd\OneDrive\Desktop\Interview\Inventory_IT_Asset_Control_Toolkit.xlsx
+File size: 104.69 KB
+
+SHEET ORDER
+--------------------------------------------------------------------------------
+01. README — OK
+02. Master Inventory — OK
+03. Inventory Dashboard — OK
+04. Aged Excess Analysis — OK
+05. Markdown Planner — OK
+06. Transfer Planner — OK
+07. IT Asset Register — OK
+08. Audit Reconciliation — OK
+09. Software Licenses — OK
+10. Mobile Provisioning — OK
+11. Disposal Log — OK
+12. Management Summary — OK
+
+MISSING EXPECTED SHEETS
+--------------------------------------------------------------------------------
+None
+
+UNEXPECTED SHEETS
+--------------------------------------------------------------------------------
+None
+
+SHEET DETAILS
+--------------------------------------------------------------------------------
+
+Sheet: README
+  Dimensions: 21 rows x 4 columns
+  Non-empty cells: 15
+  Tables: 0
+  Charts: 0
+  Frozen panes: None
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Master Inventory
+  Dimensions: 122 rows x 22 columns
+  Non-empty cells: 2663
+  Tables: 1
+  Charts: 0
+  Frozen panes: A3
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Inventory Dashboard
+  Dimensions: 63 rows x 10 columns
+  Non-empty cells: 163
+  Tables: 0
+  Charts: 4
+  Frozen panes: None
+  AutoFilter: None
+  Formulas: 10
+  Formula samples:
+    A4: =SUM('Master Inventory'!N3:N122)
+    C4: =SUMIF('Master Inventory'!Q3:Q122,">180",'Master Inventory'!N3:N122)
+    E4: =SUMIF('Master Inventory'!U3:U122,"Excess",'Master Inventory'!N3:N122)+SUMIF('Master Inventory'!U3:U122,"Excess / Aged",'Master Inventory'!N3:N122)
+    G4: =COUNTIF('Master Inventory'!U3:U122,"Slow-Moving")
+    I4: =COUNTIF('Master Inventory'!U3:U122,"Obsolete")
+    A7: =COUNTIF('Master Inventory'!V3:V122,"Review Transfer")+COUNTIF('Master Inventory'!V3:V122,"Transfer or Markdown")
+    C7: =COUNTIF('Master Inventory'!V3:V122,"Markdown Review")+COUNTIF('Master Inventory'!V3:V122,"Transfer or Markdown")+COUNTIF('Master Inventory'!V3:V122,"Liquidate")
+    E7: =COUNTIF('Master Inventory'!U3:U122,"Stockout Risk")
+    G7: =SUMIF('Master Inventory'!V3:V122,"Markdown Review",'Master Inventory'!N3:N122)+SUMIF('Master Inventory'!V3:V122,"Transfer or Markdown",'Master Inventory'!N3:N122)+SUMIF('Master Inventory'!V3:V122,"Liquidate",'Master Inventory'!N3:N122)
+    I7: =AVERAGE('Master Inventory'!T3:T122)
+
+Sheet: Aged Excess Analysis
+  Dimensions: 83 rows x 14 columns
+  Non-empty cells: 1149
+  Tables: 1
+  Charts: 0
+  Frozen panes: A3
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Markdown Planner
+  Dimensions: 62 rows x 15 columns
+  Non-empty cells: 916
+  Tables: 1
+  Charts: 0
+  Frozen panes: A3
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Transfer Planner
+  Dimensions: 109 rows x 14 columns
+  Non-empty cells: 1513
+  Tables: 1
+  Charts: 0
+  Frozen panes: A3
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: IT Asset Register
+  Dimensions: 122 rows x 16 columns
+  Non-empty cells: 1835
+  Tables: 1
+  Charts: 0
+  Frozen panes: A3
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Audit Reconciliation
+  Dimensions: 179 rows x 10 columns
+  Non-empty cells: 1325
+  Tables: 4
+  Charts: 0
+  Frozen panes: A62
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Software Licenses
+  Dimensions: 28 rows x 12 columns
+  Non-empty cells: 288
+  Tables: 1
+  Charts: 0
+  Frozen panes: A7
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Mobile Provisioning
+  Dimensions: 51 rows x 15 columns
+  Non-empty cells: 655
+  Tables: 1
+  Charts: 0
+  Frozen panes: A7
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Disposal Log
+  Dimensions: 31 rows x 14 columns
+  Non-empty cells: 326
+  Tables: 1
+  Charts: 0
+  Frozen panes: A7
+  AutoFilter: None
+  Formulas: 0
+
+Sheet: Management Summary
+  Dimensions: 36 rows x 10 columns
+  Non-empty cells: 121
+  Tables: 0
+  Charts: 0
+  Frozen panes: None
+  AutoFilter: None
+  Formulas: 17
+  Formula samples:
+    A5: =SUM('Master Inventory'!N3:N122)
+    C5: =SUMIF('Master Inventory'!Q3:Q122,">180",'Master Inventory'!N3:N122)
+    E5: =SUMIF('Master Inventory'!U3:U122,"Excess",'Master Inventory'!N3:N122)+SUMIF('Master Inventory'!U3:U122,"Excess / Aged",'Master Inventory'!N3:N122)
+    G5: =COUNTIF('Master Inventory'!V3:V122,"Review Transfer")+COUNTIF('Master Inventory'!V3:V122,"Transfer or Markdown")
+    I5: =COUNTIF('Master Inventory'!V3:V122,"Markdown Review")+COUNTIF('Master Inventory'!V3:V122,"Transfer or Markdown")+COUNTIF('Master Inventory'!V3:V122,"Liquidate")
+    A9: =COUNTA('IT Asset Register'!A3:A122)
+    C9: =COUNTIF('IT Asset Register'!L3:L122,"Assigned")
+    E9: =COUNTIF('IT Asset Register'!L3:L122,"Missing")
+    I9: =COUNTIF('Disposal Log'!N7:N31,"Pending Wipe")+COUNTIF('Disposal Log'!N7:N31,"Wiped")+COUNTIF('Disposal Log'!N7:N31,"Pending Vendor Pickup")+COUNTIF('Disposal Log'!N7:N31,"Certificate Missing")+COUNTIF('Disposal Log'!N7:N31,"Hold for Review")
+    A13: =COUNTA('Software Licenses'!A7:A28)
+    ... 7 more formulas
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total sheets: 12
+Total formulas: 27
+Audit complete.
