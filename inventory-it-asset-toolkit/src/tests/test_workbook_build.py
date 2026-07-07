@@ -1,12 +1,10 @@
 """
 Tests for workbook build process.
-
-TODO: Expand coverage per specs.md §16 once sheet builders are implemented.
 """
 
 from pathlib import Path
 
-from config.workbook_config import SHEET_ORDER, WORKBOOK_PATH
+from config.workbook_config import SHEET_ORDER
 from openpyxl import load_workbook
 
 from src.main import generate_all_data

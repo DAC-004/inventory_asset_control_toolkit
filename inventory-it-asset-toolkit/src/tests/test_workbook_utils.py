@@ -6,7 +6,7 @@ from openpyxl.chart import Reference
 from config import style_config as sc
 from src.workbook.builder import SHEET_BUILDERS, create_workbook
 from src.workbook.charts import create_bar_chart, create_pie_chart, make_category_reference
-from src.workbook.formulas import count_if_range, margin_pct_formula, sum_range
+from src.workbook.formulas import count_if_range, margin_pct_formula, sum_if_numeric, sum_range
 from src.workbook.utils import (
     apply_auto_filter,
     autosize_columns,
@@ -36,6 +36,13 @@ def test_formula_helpers_return_strings():
     assert sum_range("Master Inventory", "N", 3, 100).startswith("=SUM(")
     assert count_if_range("Master Inventory", "U", 3, 100, "Healthy").startswith("=COUNTIF(")
     assert margin_pct_formula("Master Inventory", "M", "L", 3).startswith("=IF(")
+
+
+def test_sum_if_numeric_quotes_expression_criteria():
+    """SUMIF numeric criteria must be quoted for Excel compatibility."""
+    formula = sum_if_numeric("Master Inventory", "Q", ">180", "N", 3, 122)
+    assert '">180"' in formula
+    assert ",>180," not in formula
 
 
 def test_utils_format_and_table_helpers():

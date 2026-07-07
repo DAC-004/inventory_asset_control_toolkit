@@ -15,6 +15,7 @@ def test_inventory_dashboard_kpi_cards():
 
     build(ws, {"data": {"inventory": df}})
 
+    assert ws.cell(row=2, column=1).value == "Key Performance Indicators"
     assert ws.cell(row=3, column=1).value == "Total Inventory Value"
     assert str(ws.cell(row=4, column=1).value).startswith("=SUM(")
     assert ws.cell(row=6, column=9).value == "Average Gross Margin %"

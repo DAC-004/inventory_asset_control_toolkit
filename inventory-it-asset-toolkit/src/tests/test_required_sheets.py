@@ -1,7 +1,5 @@
 """
 Tests that verify required sheet names and basic structure.
-
-TODO: Add header-row and data-quality checks per specs.md §16.
 """
 
 from config.workbook_config import SHEET_ORDER

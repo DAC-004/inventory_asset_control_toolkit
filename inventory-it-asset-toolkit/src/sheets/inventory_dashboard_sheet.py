@@ -17,7 +17,6 @@ from src.workbook.utils import (
     autosize_columns,
     format_currency_columns,
     format_integer_columns,
-    format_percentage_columns,
     set_column_widths,
     set_landscape_print,
 )
@@ -432,6 +431,7 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
     end_row = _data_end_row(len(df))
 
     _write_title_banner(ws)
+    apply_section_header_style(ws, 2, 1, "Key Performance Indicators", span_cols=10)
     _write_kpi_cards(ws, MASTER_DATA_START, end_row)
 
     summary_start = 9

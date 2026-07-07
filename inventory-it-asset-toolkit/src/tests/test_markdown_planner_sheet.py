@@ -1,13 +1,11 @@
 """Tests for Markdown Planner sheet builder."""
 
-import pandas as pd
 from openpyxl import Workbook
 
 from config.workbook_config import MARKDOWN_THRESHOLDS
 from src.data_generation.generate_inventory import generate_inventory_data
 from src.sheets.markdown_planner_sheet import (
     DATA_START_ROW,
-    ELIGIBLE_STATUSES,
     HEADER_ROW,
     HEADERS,
     TABLE_NAME,

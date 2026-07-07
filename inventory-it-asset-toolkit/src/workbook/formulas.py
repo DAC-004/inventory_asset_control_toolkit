@@ -98,13 +98,14 @@ def sum_if_numeric(
     start_row: int,
     end_row: int,
 ) -> str:
-    """Return a SUMIFS-style formula with a numeric criteria (e.g. age > 180)."""
-    # For simple greater-than, use SUMIF with expression criteria
+    """Return a SUMIF formula with a numeric/expression criteria (e.g. \">180\")."""
     criteria_range = (
         f"{_quote_sheet(sheet_name)}!{criteria_col}{start_row}:{criteria_col}{end_row}"
     )
     sum_range_ref = f"{_quote_sheet(sheet_name)}!{sum_col}{start_row}:{sum_col}{end_row}"
-    return f"=SUMIF({criteria_range},{criteria},{sum_range_ref})"
+    # Excel requires expression criteria as a quoted string: ">180", not >180
+    criteria_literal = criteria if criteria.startswith('"') else f'"{criteria}"'
+    return f"=SUMIF({criteria_range},{criteria_literal},{sum_range_ref})"
 
 
 def if_formula(condition: str, value_if_true: str, value_if_false: str) -> str:

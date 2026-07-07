@@ -1,7 +1,6 @@
 """Tests for Master Inventory sheet builder."""
 
 from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
 
 from src.data_generation.generate_inventory import generate_inventory_data
 from src.sheets.master_inventory_sheet import (
