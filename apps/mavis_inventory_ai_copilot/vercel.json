@@ -4,6 +4,5 @@
   "framework": null,
   "installCommand": "echo 'Static landing page — no install'",
   "buildCommand": "echo 'Static landing page — no build'",
-  "outputDirectory": "public",
-  "functions": {}
+  "outputDirectory": "public"
 }
