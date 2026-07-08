@@ -7,7 +7,7 @@ Enterprise Streamlit application for inventory health analytics, transfer optimi
 ```bash
 cd apps/mavis_inventory_ai_copilot
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 ## Run Tests
@@ -20,7 +20,7 @@ ruff check .
 
 ## Demo Script
 
-1. Launch the app with `streamlit run app.py`
+1. Launch the app with `streamlit run streamlit_app.py`
 2. Start on **Executive Dashboard**
 3. Explain total inventory value, aged inventory, excess exposure, and recovery opportunity
 4. Open **Aged & Excess** to show exception prioritization
@@ -32,7 +32,7 @@ ruff check .
 ## Architecture
 
 ```
-app.py                  # Streamlit entry point
+streamlit_app.py          # Streamlit entry point
 src/config/             # Settings and constants
 src/data/               # Loaders, validators, transformers
 src/models/             # Pydantic data models
