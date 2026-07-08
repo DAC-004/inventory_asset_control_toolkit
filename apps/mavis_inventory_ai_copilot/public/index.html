@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Optimization AI Co-Pilot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.6;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      color: #fff;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; margin-bottom: 0.75rem; }
+    .hero p { max-width: 640px; margin: 0 auto; opacity: 0.92; font-size: 1.05rem; }
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #1e3a5f; }
+    .card p { font-size: 0.9rem; color: #64748b; }
+    .cta { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #fff; color: #1e3a5f; border: 1px solid #e2e8f0; }
+    .note {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      color: #1e40af;
+      margin-top: 2rem;
+    }
+    code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85rem; }
+    footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Inventory Optimization AI Co-Pilot</h1>
+    <p>Enterprise inventory health, transfer optimization, markdown planning, and AI-assisted leadership summaries.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/DAC-004/inventory_asset_control_toolkit/tree/feature/mavis-ai-inventory-copilot/apps/mavis_inventory_ai_copilot" target="_blank" rel="noopener">View on GitHub</a>
+      <a class="btn btn-secondary" href="https://github.com/DAC-004/inventory_asset_control_toolkit" target="_blank" rel="noopener">Full Toolkit Repo</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <div class="card"><h3>Executive Dashboard</h3><p>Portfolio KPIs, aging buckets, and top risks by dollar exposure.</p></div>
+      <div class="card"><h3>Aged &amp; Excess</h3><p>Exception queue with filters, risk levels, and recommendation explanations.</p></div>
+      <div class="card"><h3>Transfer Planner</h3><p>Network balancing ranked by net benefit after transfer cost.</p></div>
+      <div class="card"><h3>Markdown Planner</h3><p>Margin-aware exit pricing with recovery and impact estimates.</p></div>
+      <div class="card"><h3>AI Summary</h3><p>Executive narrative from calculated KPIs — local mode, no API keys required.</p></div>
+      <div class="card"><h3>Data Quality</h3><p>Validation errors, warnings, and dataset profiling before analytics run.</p></div>
+    </div>
+
+    <div class="note">
+      <strong>Run the interactive Streamlit app locally:</strong><br />
+      <code>cd apps/mavis_inventory_ai_copilot && pip install -r requirements.txt && streamlit run app.py</code><br /><br />
+      Streamlit requires a persistent Python server and is hosted on this Vercel page as a project landing site.
+      For a full cloud demo, deploy the same repo folder to <strong>Streamlit Community Cloud</strong>, Render, or Railway using the included Dockerfile.
+    </div>
+  </main>
+
+  <footer>Mavis Inventory Optimization AI Co-Pilot &mdash; Interview Demo Build</footer>
+</body>
+</html>
