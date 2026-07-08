@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import streamlit as st
 
+from src.config.runtime import is_browser_runtime
 from src.config.settings import get_settings
-from src.services.ai_service import AISummaryError, generate_management_summary
 from src.services.summary_service import PipelineResult, _top_risks
 
 PROVIDERS = ["openai", "local"]
@@ -14,15 +14,8 @@ PROVIDERS = ["openai", "local"]
 def _resolve_openai_api_key(settings_api_key: str) -> str:
     if settings_api_key.strip():
         return settings_api_key.strip()
-    if st.session_state.get("openai_api_key"):
-        return st.session_state.openai_api_key.strip()
-    try:
-        secret_key = st.secrets.get("OPENAI_API_KEY", "")
-        if secret_key:
-            return str(secret_key).strip()
-    except Exception:
-        pass
-    return ""
+    session_key = st.session_state.get("openai_api_key", "")
+    return session_key.strip() if session_key else ""
 
 
 def render(pipeline: PipelineResult) -> None:
@@ -36,7 +29,10 @@ def render(pipeline: PipelineResult) -> None:
     with col1:
         provider = st.selectbox("AI Provider", PROVIDERS, index=default_index)
         openai_api_key = _resolve_openai_api_key(settings.openai_api_key)
-        if provider == "openai" and not openai_api_key:
+        if provider == "openai" and is_browser_runtime():
+            st.caption("OpenAI runs via secure Vercel API proxy — no browser API key needed.")
+            st.caption("Generation typically takes **15–45 seconds** after you click the button.")
+        elif provider == "openai" and not openai_api_key:
             entered_key = st.text_input(
                 "OpenAI API Key",
                 type="password",
@@ -65,39 +61,62 @@ def render(pipeline: PipelineResult) -> None:
         "markdown_summary": markdown_summary,
     }
 
-    should_generate = regenerate or (
-        provider == "local"
-        and "summary_text" not in st.session_state
+    pending = (
+        st.session_state.get("summary_pending")
+        and st.session_state.get("summary_pending_provider") == provider
     )
 
+    if regenerate:
+        st.session_state.summary_pending = True
+        st.session_state.summary_pending_provider = provider
+        st.session_state.summary_error = None
+        st.rerun()
+
+    should_generate = pending or (
+        provider == "local" and "summary_text" not in st.session_state
+    )
+
+    if pending:
+        st.session_state.summary_pending = False
+        if provider == "openai":
+            st.info("Generating OpenAI summary… please wait 15–45 seconds and keep this tab open.")
+
     if should_generate:
+        from src.services.ai_service import AISummaryError, generate_management_summary
+
         try:
-            with st.spinner(
-                "Calling OpenAI..." if provider == "openai" else "Generating local summary..."
-            ):
-                st.session_state.summary_text = generate_management_summary(
-                    summary_inputs["kpis"],
-                    summary_inputs["top_risks"],
-                    summary_inputs["transfer_summary"],
-                    summary_inputs["markdown_summary"],
-                    provider=provider,
-                    openai_api_key=openai_api_key if provider == "openai" else None,
-                )
+            st.session_state.summary_text = generate_management_summary(
+                summary_inputs["kpis"],
+                summary_inputs["top_risks"],
+                summary_inputs["transfer_summary"],
+                summary_inputs["markdown_summary"],
+                provider=provider,
+                openai_api_key=openai_api_key if provider == "openai" else None,
+            )
             st.session_state.summary_provider = provider
             st.session_state.summary_error = None
         except AISummaryError as exc:
             st.session_state.summary_error = str(exc)
+            st.session_state.summary_provider = provider
+        except Exception as exc:
+            st.session_state.summary_error = f"Summary generation failed: {exc}"
             st.session_state.summary_provider = provider
 
     if st.session_state.get("summary_error") and st.session_state.get("summary_provider") == provider:
         st.error(st.session_state.summary_error)
 
     if provider == "openai" and not should_generate and "summary_text" not in st.session_state:
-        st.info("Enter your OpenAI API key and click **Generate Summary** to create an LLM narrative.")
+        if is_browser_runtime():
+            st.info("Click **Generate Summary** to create an OpenAI narrative from calculated KPIs.")
+        else:
+            st.info("Enter your OpenAI API key and click **Generate Summary** to create an LLM narrative.")
 
     if st.session_state.get("summary_text") and st.session_state.get("summary_provider") == provider:
         if provider == "openai":
-            st.caption(f"Generated with OpenAI ({settings.openai_model}).")
+            if is_browser_runtime():
+                st.caption(f"Generated with OpenAI ({settings.openai_model}) via Vercel API proxy.")
+            else:
+                st.caption(f"Generated with OpenAI ({settings.openai_model}).")
         else:
             st.caption("Generated with local template (offline).")
         st.markdown(st.session_state.summary_text)
@@ -108,6 +127,9 @@ def render(pipeline: PipelineResult) -> None:
             file_name="management_summary.md",
             mime="text/markdown",
         )
+    elif provider == "openai" and not st.session_state.get("summary_text"):
+        with st.expander("Preview: instant offline baseline summary", expanded=False):
+            st.markdown(pipeline.management_summary)
 
     with st.expander("Summary Inputs (Structured Metrics)"):
         st.json(

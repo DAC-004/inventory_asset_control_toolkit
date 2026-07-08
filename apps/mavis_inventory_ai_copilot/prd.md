@@ -80,9 +80,10 @@ The MVP does not need:
 * Complex machine learning forecasting
 * Full demand planning engine
 * Role-based permissions
-* Cloud deployment
 
 These can be listed as future enhancements.
+
+**In scope for this release:** Static cloud deployment on Vercel (browser-based Streamlit via Stlite), with OpenAI summaries proxied through a serverless API so API keys are not exposed in the browser.
 
 ## 7. MVP Scope
 
@@ -228,6 +229,16 @@ Important AI behavior:
 * AI should be used as a communication and reasoning aid, not as the sole decision-maker.
 * The application must have a deterministic fallback summary for demo reliability.
 
+**Provider modes:**
+
+* **Local (offline template):** Always available; generates an executive summary from calculated KPIs without external APIs.
+* **OpenAI (live LLM):** Uses structured metrics only. Locally, requires `OPENAI_API_KEY` in `.env.local`. In the cloud deployment, calls a secure Vercel serverless proxy (`/api/summary`) so the API key never ships to the browser.
+
+**Cloud UX expectations:**
+
+* OpenAI generation typically takes **15–45 seconds** in the browser; the UI shows a generating state and an instant offline baseline summary while waiting.
+* Users should keep the tab open until generation completes.
+
 ### 7.6 Data Upload / Data Source
 
 The app should support:
@@ -236,8 +247,24 @@ The app should support:
 * Loading from sample CSV files
 * Graceful error messages if required columns are missing
 * Validation before analytics calculations run
+* **Cloud (Vercel/Stlite):** Embedded sample CSV; Excel workbooks are not loaded in the browser runtime
 
-## 8. User Experience Requirements
+## 8. Deployment & Runtime Modes
+
+The application supports two runtimes:
+
+| Mode | Entry | Best for |
+|------|-------|----------|
+| **Local development** | `streamlit run streamlit_app.py` | Full Excel support, local OpenAI key, rapid iteration |
+| **Cloud (production)** | https://mavis-inventory-ai-copilot-dusky.vercel.app | Interview demos, sharing without local setup |
+
+Cloud architecture:
+
+* **Frontend:** Stlite bundles Streamlit + Python (Pyodide) into a static `public/index.html`.
+* **Backend:** Vercel serverless function at `/api/summary` proxies OpenAI Chat Completions.
+* **Secrets:** `OPENAI_API_KEY` is set in Vercel project environment variables (Production), not in client code.
+
+## 9. User Experience Requirements
 
 The application should feel like an enterprise analytics solution.
 
@@ -273,7 +300,7 @@ Recommended app navigation:
 * Make filters easy to use.
 * Make the AI summary easy to copy into an email or leadership update.
 
-## 9. Data Requirements
+## 10. Data Requirements
 
 The minimum inventory dataset should include:
 
@@ -312,7 +339,7 @@ Derived fields:
 * recommended_action
 * estimated_recovery_value
 
-## 10. Recommendation Logic
+## 11. Recommendation Logic
 
 ### Excess Inventory
 
@@ -375,7 +402,7 @@ Recommend liquidation when:
 * Age is very high
 * Markdown recovery is low
 
-## 11. Testing Requirements
+## 12. Testing Requirements
 
 Testing is required for the MVP.
 
@@ -393,6 +420,14 @@ Must cover:
 * Recommended action logic
 * Transfer net benefit logic
 * Markdown recommendation logic
+* OpenAI proxy / browser HTTP helpers (local unit tests)
+
+### End-to-End / Browser Tests
+
+Optional scripts for cloud verification:
+
+* `scripts/test_stlite_ai_summary.mjs` — Playwright test of AI Summary on production URL
+* `scripts/test_browser_proxy_xhr.mjs` — sync XHR proxy smoke test
 
 ### Data Validation Tests
 
@@ -428,35 +463,37 @@ Must cover:
 * Markdown planner page renders
 * AI summary page renders
 
-## 12. Acceptance Criteria
+## 13. Acceptance Criteria
 
 The MVP is complete when:
 
-1. The app loads sample workbook data successfully.
+1. The app loads sample workbook data successfully (local) or embedded sample CSV (cloud).
 2. The dashboard displays all required KPIs.
 3. The aged/excess table filters and sorts correctly.
 4. The transfer planner produces ranked transfer recommendations.
 5. The markdown planner produces margin-aware markdown recommendations.
-6. The AI summary generates a leadership-ready narrative.
+6. The AI summary generates a leadership-ready narrative (local template or OpenAI).
 7. The app has deterministic fallback summary behavior.
-8. Tests pass through `pytest`.
+8. Tests pass through `pytest` (63+ tests).
 9. The codebase has a clean folder structure.
 10. The UI is polished enough for an on-site interview demonstration.
+11. **Cloud:** Production deploy on Vercel loads in the browser and OpenAI summaries work via `/api/summary` with server-side API key.
 
-## 13. Demo Storyline
+## 14. Demo Storyline
 
 The demo should follow this sequence:
 
 1. Start with the business problem.
-2. Show the Executive Dashboard.
-3. Drill into Aged & Excess Inventory.
-4. Explain how the app prioritizes exceptions.
-5. Show Transfer Planner as the first action path.
-6. Show Markdown Planner as the second action path.
-7. Generate AI Management Summary.
-8. Close by explaining how this would connect to real Mavis data sources.
+2. Open the cloud app (https://mavis-inventory-ai-copilot-dusky.vercel.app) or run locally.
+3. Show the Executive Dashboard.
+4. Drill into Aged & Excess Inventory.
+5. Explain how the app prioritizes exceptions.
+6. Show Transfer Planner as the first action path.
+7. Show Markdown Planner as the second action path.
+8. On **AI Summary**, click **Generate Summary** and wait 15–45 seconds for the OpenAI narrative (cloud uses Vercel proxy; local can use `.env.local` key or offline template).
+9. Close by explaining how this would connect to real Mavis data sources.
 
-## 14. Future Enhancements
+## 15. Future Enhancements
 
 Future enhancements may include:
 

@@ -16,3 +16,4 @@ htmlcov/
 data/processed/
 *.log
 .vercel
+.env*

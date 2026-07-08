@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from src.models.inventory import InventoryHealthRecord
 from src.models.recommendations import MarkdownRecommendation, TransferRecommendation
+from src.utils.formatting import format_currency
 
 
 def suggested_markdown_pct(
@@ -100,9 +101,9 @@ def generate_markdown_recommendations(
 
         explanation = (
             f"{record.sku} at {record.location}: {md_pct:.0%} markdown to "
-            f"${md_price:,.2f} based on age ({record.inventory_age_days} days) "
+            f"{format_currency(md_price, 2)} based on age ({record.inventory_age_days} days) "
             f"and sell-through ({record.sell_through_rate:.1%}). "
-            f"Estimated recovery ${recovery:,.0f}."
+            f"Estimated recovery {format_currency(recovery)}."
         )
 
         recommendations.append(

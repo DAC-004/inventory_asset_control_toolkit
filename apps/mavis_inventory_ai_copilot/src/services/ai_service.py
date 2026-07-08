@@ -6,7 +6,10 @@ import json
 import logging
 from typing import Any
 
+from src.config.runtime import is_browser_runtime
 from src.config.settings import get_settings
+from src.utils.browser_http import post_json
+from src.utils.formatting import format_currency
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +44,14 @@ def generate_management_summary(
         return _local_summary(kpis, top_risks, transfer_summary, markdown_summary)
 
     if provider == "openai":
+        if is_browser_runtime():
+            return _openai_summary_via_proxy(
+                kpis,
+                top_risks,
+                transfer_summary,
+                markdown_summary,
+                model=settings.openai_model,
+            )
         api_key = (openai_api_key or settings.openai_api_key or "").strip()
         if not api_key:
             raise AISummaryError(
@@ -94,8 +105,9 @@ def _openai_summary(
                 {
                     "role": "user",
                     "content": (
-                        "Generate an inventory optimization management summary from these calculated metrics:\n\n"
-                        f"{json.dumps(payload, indent=2)}"
+                        "Generate an inventory optimization management summary from these calculated metrics:"
+                        + "\n\n"
+                        + json.dumps(payload, indent=2)
                     ),
                 },
             ],
@@ -109,6 +121,33 @@ def _openai_summary(
     if not content or not content.strip():
         raise AISummaryError("OpenAI returned an empty summary.")
     return content.strip()
+
+
+def _openai_summary_via_proxy(
+    kpis: dict[str, Any],
+    top_risks: list[dict[str, Any]],
+    transfer_summary: dict[str, Any],
+    markdown_summary: dict[str, Any],
+    *,
+    model: str,
+) -> str:
+    payload = {
+        "model": model,
+        "context": _structured_summary_context(kpis, top_risks, transfer_summary, markdown_summary),
+    }
+    try:
+        body = post_json(
+            "/api/summary",
+            payload,
+            loading_message="Generating OpenAI management summary…",
+        )
+    except Exception as exc:
+        raise AISummaryError(f"OpenAI proxy request failed: {exc}") from exc
+
+    summary = body.get("summary", "")
+    if not summary:
+        raise AISummaryError(body.get("error", "OpenAI proxy returned an empty summary."))
+    return summary.strip()
 
 
 def _local_summary(
@@ -132,7 +171,7 @@ def _local_summary(
     for i, risk in enumerate(top_risks[:5], start=1):
         risk_lines.append(
             f"  {i}. {risk.get('sku', 'N/A')} @ {risk.get('location', 'N/A')} — "
-            f"{risk.get('issue_type', 'Unknown')} (${risk.get('inventory_value', 0):,.0f})"
+            f"{risk.get('issue_type', 'Unknown')} ({format_currency(risk.get('inventory_value', 0))})"
         )
     risk_section = "\n".join(risk_lines) if risk_lines else "  No critical exceptions identified."
 
@@ -142,7 +181,7 @@ def _local_summary(
 
 ## Executive Overview
 
-Total inventory value stands at **${total_value:,.0f}**, with **${aged_value:,.0f}** in aged inventory and **${excess_value:,.0f}** in excess exposure. The network currently flags **{exceptions}** exception SKU-locations requiring attention.
+Total inventory value stands at **{format_currency(total_value)}**, with **{format_currency(aged_value)}** in aged inventory and **{format_currency(excess_value)}** in excess exposure. The network currently flags **{exceptions}** exception SKU-locations requiring attention.
 
 ## Priority Risks
 
@@ -151,10 +190,10 @@ Total inventory value stands at **${total_value:,.0f}**, with **${aged_value:,.0
 ## Recommended Actions
 
 ### Network Transfers
-**{transfer_count}** transfer opportunities identified with aggregate net benefit of **${transfer_benefit:,.0f}**. Prioritize high-confidence moves that rebalance excess inventory to locations with stockout risk or stronger demand signals.
+**{transfer_count}** transfer opportunities identified with aggregate net benefit of **{format_currency(transfer_benefit)}**. Prioritize high-confidence moves that rebalance excess inventory to locations with stockout risk or stronger demand signals.
 
 ### Markdown & Exit Strategy
-**{markdown_count}** markdown candidates offer an estimated recovery opportunity of **${markdown_recovery:,.0f}** (portfolio markdown recovery potential: **${recovery:,.0f}**). Apply deeper markdowns to obsolete and zero-demand items; use controlled markdowns for aged slow-movers.
+**{markdown_count}** markdown candidates offer an estimated recovery opportunity of **{format_currency(markdown_recovery)}** (portfolio markdown recovery potential: **{format_currency(recovery)}**). Apply deeper markdowns to obsolete and zero-demand items; use controlled markdowns for aged slow-movers.
 
 ### Replenishment
 **{stockouts}** locations are below minimum stock thresholds and should be reviewed for replenishment to protect service levels.
@@ -163,11 +202,11 @@ Total inventory value stands at **${total_value:,.0f}**, with **${aged_value:,.0
 
 | Metric | Value |
 |--------|-------|
-| Total Inventory Value | ${total_value:,.0f} |
-| Aged Inventory Value | ${aged_value:,.0f} |
-| Excess Inventory Value | ${excess_value:,.0f} |
-| Transfer Net Benefit | ${transfer_benefit:,.0f} |
-| Markdown Recovery Potential | ${recovery:,.0f} |
+| Total Inventory Value | {format_currency(total_value)} |
+| Aged Inventory Value | {format_currency(aged_value)} |
+| Excess Inventory Value | {format_currency(excess_value)} |
+| Transfer Net Benefit | {format_currency(transfer_benefit)} |
+| Markdown Recovery Potential | {format_currency(recovery)} |
 
 ## Next Steps
 

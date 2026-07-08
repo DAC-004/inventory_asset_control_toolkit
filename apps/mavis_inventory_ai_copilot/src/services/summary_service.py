@@ -19,7 +19,6 @@ from src.models.recommendations import (
     TransferRecommendation,
     ValidationResult,
 )
-from src.services.ai_service import generate_management_summary
 from src.services.inventory_health_service import classify_inventory, get_exception_records
 from src.services.kpi_dashboard_service import calculate_dashboard_kpis
 from src.services.markdown_service import generate_markdown_recommendations
@@ -68,6 +67,8 @@ def run_pipeline(source_path: Path | str | None = None) -> PipelineResult:
         "candidate_count": len(markdowns),
         "total_recovery": sum(m.estimated_recovery_value for m in markdowns),
     }
+
+    from src.services.ai_service import generate_management_summary
 
     summary = generate_management_summary(
         kpis.model_dump(),

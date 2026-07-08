@@ -7,6 +7,7 @@ import streamlit as st
 
 from src.services.summary_service import PipelineResult
 from src.ui.components import render_explanation_panel, styled_health_dataframe, transfer_benefit_chart
+from src.utils.formatting import format_currency
 
 
 def render(pipeline: PipelineResult) -> None:
@@ -54,7 +55,7 @@ def render(pipeline: PipelineResult) -> None:
             filtered.index,
             format_func=lambda i: (
                 f"{filtered.loc[i, 'sku']}: {filtered.loc[i, 'source_location']} → "
-                f"{filtered.loc[i, 'destination_location']} (${filtered.loc[i, 'net_benefit']:,.0f})"
+                f"{filtered.loc[i, 'destination_location']} ({format_currency(filtered.loc[i, 'net_benefit'])})"
             ),
         )
         render_explanation_panel("Transfer Rationale", filtered.loc[idx, "explanation"])

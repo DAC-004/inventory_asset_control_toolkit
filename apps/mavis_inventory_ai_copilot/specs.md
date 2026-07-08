@@ -8,6 +8,8 @@ The Inventory Optimization AI Co-Pilot is a Python-based enterprise analytics ap
 
 The application is designed for rapid local development in Cursor while maintaining a clean production-style architecture. Business logic is separated from UI code so calculations, recommendation rules, data validation, and AI summary generation can be tested independently.
 
+The app also ships as a **static cloud deployment on Vercel**: Streamlit runs in the browser via Stlite/Pyodide, and OpenAI calls are proxied through a Vercel serverless function so API keys stay server-side.
+
 ## 2. Recommended Tech Stack
 
 ### Application
@@ -32,11 +34,19 @@ The application is designed for rapid local development in Cursor while maintain
 
 ### Optional AI Integrations
 
-* OpenAI API
-* Anthropic API
-* Gemini API
+* OpenAI API (implemented — local direct call or Vercel proxy)
+* Anthropic API (planned)
+* Gemini API (planned)
 
 The app must also include a local deterministic fallback summary generator so the demo does not depend on internet, API keys, or rate limits.
+
+### Cloud Deployment
+
+* Vercel (static Stlite bundle + Python serverless API)
+* Stlite / `@stlite/browser` (Streamlit in Pyodide)
+* stlitepack (build tool)
+
+Production URL: https://mavis-inventory-ai-copilot-dusky.vercel.app
 
 ## 3. Proposed Project Structure
 
@@ -46,10 +56,29 @@ inventory-optimization-ai-copilot/
   Specs.md
   README.md
   requirements.txt
+  requirements-stlite.txt      # Pyodide browser bundle deps
+  requirements-api.txt         # Vercel serverless OpenAI proxy
   .env.example
   .gitignore
+  vercel.json
 
-  app.py
+  streamlit_app.py             # Canonical Streamlit entry (Vercel-safe name)
+  app.py                       # Back-compat wrapper → streamlit_app.py
+
+  api/
+    summary.py                   # Vercel serverless OpenAI proxy
+
+  public/
+    index.html                   # Built Stlite bundle (generated)
+
+  scripts/
+    build_vercel_stlite.py       # Build public/index.html for Vercel
+    test_stlite_ai_summary.mjs   # Playwright E2E (optional)
+    test_browser_proxy_xhr.mjs   # Proxy smoke test (optional)
+
+  .streamlit/
+    config.toml
+    secrets.toml                 # Placeholder for Stlite browser runtime
 
   data/
     raw/
@@ -65,6 +94,7 @@ inventory-optimization-ai-copilot/
       __init__.py
       settings.py
       constants.py
+      runtime.py                 # is_browser_runtime() for Pyodide/Stlite
 
     data/
       __init__.py
@@ -81,7 +111,7 @@ inventory-optimization-ai-copilot/
 
     services/
       __init__.py
-      kpi_service.py
+      kpi_dashboard_service.py
       inventory_health_service.py
       transfer_service.py
       markdown_service.py
@@ -108,6 +138,7 @@ inventory-optimization-ai-copilot/
       formatting.py
       logging.py
       exceptions.py
+      browser_http.py            # Sync XHR for Pyodide; urllib locally
 
   tests/
     __init__.py
@@ -119,6 +150,8 @@ inventory-optimization-ai-copilot/
       test_transfer_service.py
       test_markdown_service.py
       test_summary_service.py
+      test_ai_service.py
+      test_browser_http.py
       test_validators.py
 
     integration/
@@ -170,16 +203,24 @@ The app should support headless testing of:
 * Summary generation
 * Data validation
 
+### 4.5 Dual Runtime Support
+
+The codebase detects runtime via `src/config/runtime.py`:
+
+* **Local Python:** `streamlit run streamlit_app.py` — full Excel, dotenv, direct OpenAI SDK.
+* **Browser (Pyodide/Stlite):** `sys.platform == "emscripten"` — embedded CSV, sync XHR to `/api/summary`, no client-side API keys.
+
+Browser HTTP must not use `asyncio.run()`, `urllib`, or async `pyfetch` from synchronous Streamlit callbacks. Use `src/utils/browser_http.py` (JS `XMLHttpRequest` via `pyodide.ffi.Function`).
+
 ## 5. Environment Variables
 
-Create `.env.example`:
+Create `.env.example` and load secrets from `.env.local` (gitignored) at repo root or app folder:
 
 ```text
 APP_ENV=development
-AI_PROVIDER=local
+AI_PROVIDER=openai
 OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
 DEFAULT_DATA_SOURCE=data/raw/Inventory_IT_Asset_Control_Toolkit.xlsx
 ```
 
@@ -188,17 +229,27 @@ Supported `AI_PROVIDER` values:
 ```text
 local
 openai
-anthropic
-gemini
+anthropic   # not yet implemented
+gemini      # not yet implemented
 ```
 
-For the interview demo, use:
+**Local development:**
 
 ```text
-AI_PROVIDER=local
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...   # in .env.local (gitignored)
 ```
 
-This prevents API failure during the on-site presentation.
+**Vercel production:**
+
+Set in project Settings → Environment Variables (Production):
+
+```text
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini   # optional
+```
+
+The browser bundle never receives the OpenAI key; it POSTs structured metrics to `/api/summary`.
 
 ## 6. Data Model
 
@@ -706,7 +757,7 @@ Else:
 
 ## 16. AI Summary Service
 
-The AI service should expose one public function:
+The AI service exposes one public function:
 
 ```python
 generate_management_summary(
@@ -714,25 +765,39 @@ generate_management_summary(
     top_risks: list[dict],
     transfer_summary: dict,
     markdown_summary: dict,
-    provider: str = "local"
+    provider: str = "local",
+    openai_api_key: str | None = None,
 ) -> str
 ```
 
 ### 16.1 Local Provider
 
-The local provider uses templates and calculated values.
+The local provider uses templates and calculated values. It always works offline.
 
-It should always work.
+### 16.2 OpenAI Provider
 
-### 16.2 External Provider
+**Local runtime:** Uses the OpenAI Python SDK with `OPENAI_API_KEY` from environment or session input.
 
-External providers may be added later.
+**Browser runtime:** Calls `post_json("/api/summary", payload)` which:
 
-The external provider must receive structured metrics only.
+1. Resolves relative URL against `js.location.origin`
+2. POSTs JSON via synchronous `XMLHttpRequest` (safe inside Streamlit's event loop)
+3. Returns `{ "summary": "..." }` from the Vercel handler
 
-Do not send raw sensitive data unless explicitly configured.
+**Serverless proxy (`api/summary.py`):**
 
-### 16.3 AI Guardrails
+* Validates `OPENAI_API_KEY` from Vercel env
+* Accepts `{ "model": "...", "context": { kpis, top_risks, ... } }`
+* Calls OpenAI Chat Completions with a fixed system prompt and structured user payload
+* Returns JSON with CORS headers for the Stlite origin
+
+### 16.3 AI Summary Page UX
+
+* **OpenAI in cloud:** Two-step generate (button → rerun → API call) with visible "Generating… 15–45 seconds" messaging
+* **Baseline expander:** Instant offline template summary while waiting for OpenAI
+* **Download:** Markdown export of generated summary
+
+### 16.4 AI Guardrails
 
 The AI summary must:
 
@@ -792,7 +857,7 @@ Sidebar should include:
 * Last refresh timestamp
 * Row count
 * Exception count
-* Demo mode indicator
+* Mode indicator (local OpenAI / offline demo / cloud Stlite)
 
 ## 17.4 KPI Cards
 
@@ -939,6 +1004,26 @@ test_summary_includes_top_risk_count
 test_summary_does_not_fail_with_empty_recommendations
 ```
 
+### AI Service Tests
+
+File:
+
+```text
+tests/unit/test_ai_service.py
+```
+
+Covers OpenAI key validation, API response handling, and error paths.
+
+### Browser HTTP Tests
+
+File:
+
+```text
+tests/unit/test_browser_http.py
+```
+
+Covers sync XHR path, URL resolution, and proxy integration mocks.
+
 ## 18.2 Data Validation Tests
 
 File:
@@ -1001,22 +1086,52 @@ test_ai_summary_page_renders
 
 ## 19. Commands
 
-### Install Dependencies
+### Install Dependencies (local)
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run App
+### Run App (local)
 
 ```bash
-streamlit run app.py
+streamlit run streamlit_app.py
+# or: streamlit run app.py
 ```
 
 ### Run Tests
 
 ```bash
 pytest
+```
+
+Expected: **63+ passing tests**.
+
+### Build Vercel Stlite Bundle
+
+```bash
+python scripts/build_vercel_stlite.py
+```
+
+Outputs `public/index.html`. The build script:
+
+* Embeds `src/`, sample CSV, and `.streamlit/` config via stlitepack
+* Escapes JS template literals in embedded Python (backslashes, `${`, backticks)
+* Validates embedded Python compiles after JS simulation
+* Validates browser HTTP code avoids asyncio/urllib in Pyodide path
+
+### Deploy to Vercel
+
+```bash
+vercel deploy --prod --scope dac-004
+```
+
+Requires `OPENAI_API_KEY` in Vercel project env (Production).
+
+### Optional E2E (cloud)
+
+```bash
+node scripts/test_stlite_ai_summary.mjs
 ```
 
 ### Run Tests With Coverage
@@ -1037,20 +1152,23 @@ ruff check .
 ruff format .
 ```
 
-## 20. requirements.txt
+## 20. Dependency Files
+
+**Local / dev (`requirements.txt`):** Streamlit, Pandas, OpenPyXL, OpenAI, pytest, etc.
+
+**Stlite browser (`requirements-stlite.txt`):**
 
 ```text
-streamlit>=1.36.0
-pandas>=2.2.0
-numpy>=1.26.0
-plotly>=5.22.0
-openpyxl>=3.1.2
-pydantic>=2.7.0
-python-dotenv>=1.0.1
-pytest>=8.2.0
-pytest-cov>=5.0.0
-ruff>=0.5.0
-mypy>=1.10.0
+pandas
+numpy
+plotly
+pydantic
+```
+
+**Vercel API (`requirements-api.txt`):**
+
+```text
+openai>=1.40.0
 ```
 
 ## 21. README Demo Script
@@ -1058,13 +1176,13 @@ mypy>=1.10.0
 The README should include:
 
 ```text
-1. Launch the app with streamlit run app.py
+1. Open https://mavis-inventory-ai-copilot-dusky.vercel.app (or streamlit run streamlit_app.py locally)
 2. Start on Executive Dashboard
 3. Explain total inventory value, aged inventory, excess exposure, and recovery opportunity
 4. Open Aged & Excess to show exception prioritization
 5. Open Transfer Planner to show network balancing
 6. Open Markdown Planner to show margin-aware exit strategy
-7. Open AI Summary to generate an executive-ready recommendation
+7. Open AI Summary → Generate Summary (wait 15–45s in cloud for OpenAI narrative)
 8. Close by explaining real-world data integration opportunities
 ```
 
@@ -1072,14 +1190,14 @@ The README should include:
 
 The build is complete when:
 
-* App launches locally
-* Sample data loads successfully
+* App launches locally and on Vercel
+* Sample data loads successfully (Excel locally, CSV in cloud)
 * All pages render
 * Dashboard KPIs calculate correctly
 * Exception inventory is classified correctly
 * Transfer recommendations are generated
 * Markdown recommendations are generated
-* AI summary works in local fallback mode
-* Tests pass
+* AI summary works in local fallback mode and via OpenAI (local + Vercel proxy)
+* Tests pass (63+)
 * UI looks polished and enterprise-ready
 * Code structure is clean enough to explain during the interview

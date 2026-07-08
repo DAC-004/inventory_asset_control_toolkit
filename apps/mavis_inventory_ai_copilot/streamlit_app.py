@@ -34,13 +34,12 @@ PAGE_RENDERERS = {
 
 def load_pipeline():
     if st.session_state.pipeline is None:
-        with st.spinner("Loading and analyzing inventory data..."):
-            try:
-                st.session_state.pipeline = run_pipeline()
-            except Exception as exc:
-                logger.exception("Pipeline failed")
-                st.error(f"Failed to load inventory data: {exc}")
-                st.stop()
+        try:
+            st.session_state.pipeline = run_pipeline()
+        except Exception as exc:
+            logger.exception("Pipeline failed")
+            st.error(f"Failed to load inventory data: {exc}")
+            st.stop()
     return st.session_state.pipeline
 
 

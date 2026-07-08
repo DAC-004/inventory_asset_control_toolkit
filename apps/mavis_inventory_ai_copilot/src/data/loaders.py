@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from src.config.constants import APP_ROOT, EXCEL_SHEET_CANDIDATES
+from src.config.runtime import is_browser_runtime
 from src.utils.exceptions import DataLoadError
 from src.utils.logging import get_logger
 
@@ -23,6 +24,12 @@ def load_inventory_data(source_path: Path | str | None = None) -> pd.DataFrame:
         raise DataLoadError(f"Data source not found: {path}")
 
     logger.info("Loading inventory data from %s", path)
+
+    if is_browser_runtime() and path.suffix.lower() in {".xlsx", ".xlsm", ".xls"}:
+        csv_fallback = APP_ROOT / "data" / "sample" / "sample_inventory.csv"
+        if csv_fallback.exists():
+            logger.info("Browser runtime: using embedded CSV instead of Excel")
+            return pd.read_csv(csv_fallback)
 
     if path.suffix.lower() in {".xlsx", ".xlsm", ".xls"}:
         return _load_excel(path)

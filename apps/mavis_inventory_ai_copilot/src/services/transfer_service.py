@@ -9,6 +9,7 @@ from src.config.constants import (
 )
 from src.models.inventory import InventoryHealthRecord
 from src.models.recommendations import TransferRecommendation
+from src.utils.formatting import format_currency
 
 
 def is_source_eligible(record: InventoryHealthRecord) -> bool:
@@ -94,8 +95,8 @@ def generate_transfer_recommendations(
                 explanation = (
                     f"Move {qty:.0f} units of {source.product_name} ({source.sku}) "
                     f"from {source.location} (excess {source.excess_qty:.0f}) to "
-                    f"{dest.location} (need {need:.0f}). Net benefit ${benefit:,.0f} "
-                    f"after ${total_cost:,.0f} transfer cost."
+                    f"{dest.location} (need {need:.0f}). Net benefit {format_currency(benefit)} "
+                    f"after {format_currency(total_cost)} transfer cost."
                 )
 
                 recommendations.append(

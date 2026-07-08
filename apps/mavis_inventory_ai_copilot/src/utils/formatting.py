@@ -6,7 +6,7 @@ from __future__ import annotations
 def format_currency(value: float | int | None, decimals: int = 0) -> str:
     if value is None:
         return "$0"
-    return f"${value:,.{decimals}f}"
+    return "$" + f"{value:,.{decimals}f}"
 
 
 def format_percent(value: float | int | None, decimals: int = 1) -> str:

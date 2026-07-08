@@ -2,7 +2,18 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "framework": null,
-  "installCommand": "echo 'Static landing page — no install'",
-  "buildCommand": "echo 'Static landing page — no build'",
-  "outputDirectory": "public"
+  "installCommand": "python -m pip install --break-system-packages stlitepack && python -m pip install --break-system-packages -r requirements-api.txt",
+  "buildCommand": "python scripts/build_vercel_stlite.py",
+  "outputDirectory": "public",
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

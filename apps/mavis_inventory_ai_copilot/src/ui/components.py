@@ -9,6 +9,7 @@ import streamlit as st
 
 from src.config.constants import AGING_BUCKETS, RISK_COLORS
 from src.models.inventory import InventoryHealthRecord
+from src.config.runtime import is_browser_runtime
 from src.models.recommendations import DashboardKPIs
 from src.ui.theme import COLORS, PLOTLY_TEMPLATE
 from src.utils.formatting import format_currency, format_percent
@@ -344,7 +345,7 @@ def styled_health_dataframe(df: pd.DataFrame) -> None:
             return ["background-color: #FEF3C7"] * len(row)
         return [""] * len(row)
 
-    if "risk_level" in display.columns:
+    if "risk_level" in display.columns and not is_browser_runtime():
         st.dataframe(display.style.apply(highlight_risk, axis=1), use_container_width=True, hide_index=True)
     else:
         st.dataframe(display, use_container_width=True, hide_index=True)
