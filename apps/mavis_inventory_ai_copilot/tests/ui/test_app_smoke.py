@@ -2,6 +2,7 @@
 
 
 def test_app_imports_without_error():
+    import app  # noqa: F401
     import streamlit_app  # noqa: F401
 
 

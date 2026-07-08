@@ -74,6 +74,7 @@ def run_pipeline(source_path: Path | str | None = None) -> PipelineResult:
         top_risks,
         transfer_summary,
         markdown_summary,
+        provider="local",
     )
 
     return PipelineResult(

@@ -51,5 +51,6 @@ def test_pipeline_generates_management_summary(sample_csv_path):
         [],
         {"recommended_count": 0, "total_net_benefit": 0},
         {"candidate_count": 0, "total_recovery": 0},
+        provider="local",
     )
     assert "Management Summary" in summary

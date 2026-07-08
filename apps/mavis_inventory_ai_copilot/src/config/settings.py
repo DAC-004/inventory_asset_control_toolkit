@@ -7,9 +7,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.config.constants import APP_ROOT, TOOLKIT_ROOT
+from src.config.constants import APP_ROOT, REPO_ROOT, TOOLKIT_ROOT
 
 load_dotenv(APP_ROOT / ".env")
+load_dotenv(APP_ROOT / ".env.local", override=True)
+load_dotenv(REPO_ROOT / ".env.local", override=True)
 
 
 @dataclass(frozen=True)
@@ -17,6 +19,7 @@ class Settings:
     app_env: str
     ai_provider: str
     openai_api_key: str
+    openai_model: str
     anthropic_api_key: str
     gemini_api_key: str
     default_data_source: str
@@ -45,8 +48,9 @@ class Settings:
 def get_settings() -> Settings:
     return Settings(
         app_env=os.getenv("APP_ENV", "development"),
-        ai_provider=os.getenv("AI_PROVIDER", "local"),
+        ai_provider=os.getenv("AI_PROVIDER", "openai"),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+        openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
         gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
         default_data_source=os.getenv(

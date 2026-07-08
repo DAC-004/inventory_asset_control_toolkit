@@ -5,6 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from src.config.constants import PAGE_LABELS
+from src.config.settings import get_settings
 from src.services.summary_service import PipelineResult
 from src.ui.theme import apply_sidebar_theme
 
@@ -56,7 +57,15 @@ def render_sidebar(pipeline: PipelineResult | None) -> str:
 
         st.divider()
         st.markdown("#### Mode")
-        st.success("Demo Mode (Local AI)")
+        settings = get_settings()
+        if settings.ai_provider == "openai" and settings.openai_api_key:
+            st.info(f"OpenAI ({settings.openai_model})")
+        elif settings.ai_provider == "openai":
+            st.warning("OpenAI selected — add API key on AI Summary page")
+        elif settings.ai_provider == "local":
+            st.success("Demo Mode (Local AI)")
+        else:
+            st.warning(f"{settings.ai_provider.title()} (not configured)")
 
         if st.button("Refresh Data", key="refresh_data", use_container_width=True):
             st.session_state.pipeline = None
