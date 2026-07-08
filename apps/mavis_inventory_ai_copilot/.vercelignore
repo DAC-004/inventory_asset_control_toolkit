@@ -1,0 +1,17 @@
+app.py
+requirements.txt
+Dockerfile
+src/
+tests/
+data/
+.streamlit/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+.env
+.env.example
+pytest.ini
+specs.md
+prd.md
+README.md

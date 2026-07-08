@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "name": "mavis-inventory-ai-copilot",
   "version": 2,
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false
+  "framework": null,
+  "installCommand": "echo 'Static landing page — no install'",
+  "buildCommand": "echo 'Static landing page — no build'",
+  "outputDirectory": "public"
 }
