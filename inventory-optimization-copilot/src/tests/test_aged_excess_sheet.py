@@ -4,31 +4,33 @@ import pandas as pd
 from openpyxl import Workbook
 
 from src.data_generation.generate_inventory import generate_inventory_data
+from src.services.inventory_health_service import (
+    assign_risk_level,
+    build_analysis_dataframe,
+)
 from src.sheets.aged_excess_sheet import (
     DATA_START_ROW,
     HEADER_ROW,
     HEADERS,
     TABLE_NAME,
-    _assign_risk_level,
-    _build_analysis_dataframe,
     build,
 )
 
 
 def test_assign_risk_level_mapping():
     """Risk levels should map correctly from inventory status."""
-    assert _assign_risk_level("Obsolete") == "High"
-    assert _assign_risk_level("Excess / Aged") == "High"
-    assert _assign_risk_level("Stockout Risk") == "High"
-    assert _assign_risk_level("Excess") == "Medium"
-    assert _assign_risk_level("Slow-Moving") == "Medium"
-    assert _assign_risk_level("Healthy") == "Low"
+    assert assign_risk_level("Obsolete") == "High"
+    assert assign_risk_level("Excess / Aged") == "High"
+    assert assign_risk_level("Stockout Risk") == "High"
+    assert assign_risk_level("Excess") == "Medium"
+    assert assign_risk_level("Slow-Moving") == "Medium"
+    assert assign_risk_level("Healthy") == "Low"
 
 
 def test_build_analysis_dataframe_calculations():
     """Analysis DataFrame should compute excess quantity and exclude healthy rows."""
     df = generate_inventory_data(row_count=120, seed=42)
-    analysis = _build_analysis_dataframe(df)
+    analysis = build_analysis_dataframe(df)
 
     assert list(analysis.columns) == HEADERS
     assert "Healthy" not in analysis["Risk Level"].values

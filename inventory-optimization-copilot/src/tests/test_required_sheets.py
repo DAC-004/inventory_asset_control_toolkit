@@ -16,13 +16,15 @@ def test_sheet_names_within_excel_limit():
         assert len(name) <= 31, f"Sheet name too long: {name}"
 
 
-def test_no_it_sheets_in_order():
-    """Inventory-only product must not reference IT tabs."""
-    forbidden = {
-        "IT Asset Register",
-        "Audit Reconciliation",
-        "Software Licenses",
-        "Mobile Provisioning",
-        "Disposal Log",
-    }
-    assert forbidden.isdisjoint(set(SHEET_ORDER))
+def test_sheet_order_is_inventory_only():
+    """Inventory-only product uses the configured phase-1 tab list."""
+    expected = [
+        "README",
+        "Master Inventory",
+        "Inventory Dashboard",
+        "Aged Excess Analysis",
+        "Markdown Planner",
+        "Transfer Planner",
+        "Management Summary",
+    ]
+    assert SHEET_ORDER == expected

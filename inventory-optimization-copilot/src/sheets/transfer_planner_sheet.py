@@ -11,7 +11,10 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from config import style_config as sc
-from config.workbook_config import TRANSFER_SETTINGS
+from src.services.transfer_service import (
+    TRANSFER_PLANNER_HEADERS,
+    build_transfer_dataframe,
+)
 from src.workbook.styles import (
     apply_risk_conditional_formatting,
     apply_table_header_style,
@@ -25,25 +28,7 @@ from src.workbook.utils import (
     set_landscape_print,
 )
 
-HEADERS = [
-    "SKU",
-    "Product Name",
-    "Source Location",
-    "Destination Location",
-    "Source Quantity",
-    "Destination Quantity",
-    "Destination Min Stock",
-    "Destination Demand",
-    "Suggested Transfer Quantity",
-    "Unit Cost",
-    "Transfer Cost",
-    "Estimated Margin Protected",
-    "Net Benefit",
-    "Recommendation",
-]
-
-MARGIN_RATE = 0.35
-STRONG_DEMAND_THRESHOLD = 8
+HEADERS = TRANSFER_PLANNER_HEADERS
 
 TITLE_ROW = 1
 HEADER_ROW = 2
@@ -61,153 +46,6 @@ RECOMMENDATION_CF_MAP = {
     "Review Transfer": "watch",
     "Do Not Transfer": "critical",
 }
-
-
-def _estimate_transfer_cost(
-    source_location: str, destination_location: str, quantity: int
-) -> float:
-    """
-    Estimate transfer cost using a simple distance / lane-based model.
-
-    DC-to-store lanes are cheaper per unit; store-to-store moves cost more handling.
-    """
-    base_cost = 35.0
-    per_unit = 2.75
-
-    source_is_dc = source_location.startswith("DC")
-    dest_is_dc = destination_location.startswith("DC")
-
-    if source_is_dc and not dest_is_dc:
-        base_cost = 52.0
-        per_unit = 2.50
-    elif not source_is_dc and not dest_is_dc:
-        base_cost = 28.0
-        per_unit = 3.85
-    elif not source_is_dc and dest_is_dc:
-        base_cost = 48.0
-        per_unit = 2.95
-    else:
-        base_cost = 40.0
-        per_unit = 2.20
-
-    return round(base_cost + quantity * per_unit, 2)
-
-
-def _destination_needs_stock(dest: pd.Series) -> bool:
-    """Return True when destination qualifies for inbound transfer."""
-    below_min = dest["quantity_on_hand"] < dest["min_stock"]
-    strong_demand = dest["demand_90_day"] >= STRONG_DEMAND_THRESHOLD
-    return bool((below_min and dest["demand_90_day"] > 0) or strong_demand)
-
-
-def _suggested_transfer_quantity(
-    source: pd.Series,
-    dest: pd.Series,
-    demand_buffer: int,
-) -> int:
-    """Calculate suggested transfer quantity per specs §7.3."""
-    source_excess = int(source["quantity_on_hand"] - source["max_stock"])
-    shortage = max(int(dest["min_stock"] - dest["quantity_on_hand"]), 0)
-    demand_need = (
-        max(int(dest["demand_90_day"] // 4), 0)
-        if dest["demand_90_day"] >= STRONG_DEMAND_THRESHOLD
-        else 0
-    )
-    destination_need = shortage + demand_buffer + demand_need
-    return max(min(source_excess, destination_need), 0)
-
-
-def _build_transfer_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Identify transfer opportunities with positive net benefit.
-
-    Matches excess source locations to needy destinations by category when the
-    same SKU is not stocked at both locations (typical in this sample dataset).
-    """
-    if df.empty:
-        return pd.DataFrame(columns=HEADERS)
-
-    demand_buffer = TRANSFER_SETTINGS["destination_demand_buffer"]
-    candidates: list[dict[str, Any]] = []
-    seen: set[tuple[str, str, str, str]] = set()
-
-    sources = df[df["quantity_on_hand"] > df["max_stock"]]
-    if sources.empty:
-        return pd.DataFrame(columns=HEADERS)
-
-    for _, source in sources.iterrows():
-        # Same SKU at another location, or same category/subcategory elsewhere
-        sku_matches = df[
-            (df["sku"] == source["sku"]) & (df["location"] != source["location"])
-        ]
-        category_matches = df[
-            (df["category"] == source["category"])
-            & (df["subcategory"] == source["subcategory"])
-            & (df["location"] != source["location"])
-            & (df["sku"] != source["sku"])
-        ]
-        destinations = pd.concat([sku_matches, category_matches]).drop_duplicates(
-            subset=["item_id"]
-        )
-
-        for _, dest in destinations.iterrows():
-            if not _destination_needs_stock(dest):
-                continue
-
-            suggested_qty = _suggested_transfer_quantity(source, dest, demand_buffer)
-            if suggested_qty <= 0:
-                continue
-
-            pair_key = (
-                str(source["sku"]),
-                str(source["location"]),
-                str(dest["location"]),
-                str(dest["sku"]),
-            )
-            if pair_key in seen:
-                continue
-            seen.add(pair_key)
-
-            unit_cost = float(source["unit_cost"])
-            transfer_cost = _estimate_transfer_cost(
-                str(source["location"]),
-                str(dest["location"]),
-                suggested_qty,
-            )
-            margin_protected = round(suggested_qty * unit_cost * MARGIN_RATE, 2)
-            net_benefit = round(margin_protected - transfer_cost, 2)
-
-            if net_benefit <= 0:
-                continue
-
-            recommendation = (
-                "Transfer Recommended" if net_benefit >= 25 else "Review Transfer"
-            )
-
-            candidates.append(
-                {
-                    "SKU": source["sku"],
-                    "Product Name": source["product_name"],
-                    "Source Location": source["location"],
-                    "Destination Location": dest["location"],
-                    "Source Quantity": int(source["quantity_on_hand"]),
-                    "Destination Quantity": int(dest["quantity_on_hand"]),
-                    "Destination Min Stock": int(dest["min_stock"]),
-                    "Destination Demand": int(dest["demand_90_day"]),
-                    "Suggested Transfer Quantity": suggested_qty,
-                    "Unit Cost": unit_cost,
-                    "Transfer Cost": transfer_cost,
-                    "Estimated Margin Protected": margin_protected,
-                    "Net Benefit": net_benefit,
-                    "Recommendation": recommendation,
-                }
-            )
-
-    if not candidates:
-        return pd.DataFrame(columns=HEADERS)
-
-    result = pd.DataFrame(candidates, columns=HEADERS)
-    return result.sort_values("Net Benefit", ascending=False).reset_index(drop=True)
 
 
 def _write_title(ws: Worksheet, record_count: int) -> None:
@@ -313,7 +151,7 @@ def _apply_recommendation_formatting(ws: Worksheet, last_row: int) -> None:
 def build(ws: Worksheet, context: dict[str, Any]) -> None:
     """Build the Transfer Planner sheet from inventory data."""
     df: pd.DataFrame = context["data"].get("inventory", pd.DataFrame())
-    transfers = _build_transfer_dataframe(df)
+    transfers = build_transfer_dataframe(df)
 
     _write_title(ws, len(transfers))
     _write_headers(ws)

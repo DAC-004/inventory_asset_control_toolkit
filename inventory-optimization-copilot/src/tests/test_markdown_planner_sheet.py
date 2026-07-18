@@ -4,39 +4,38 @@ from openpyxl import Workbook
 
 from config.workbook_config import MARKDOWN_THRESHOLDS
 from src.data_generation.generate_inventory import generate_inventory_data
+from src.services.markdown_service import assign_markdown_plan, build_markdown_dataframe
 from src.sheets.markdown_planner_sheet import (
     DATA_START_ROW,
     HEADER_ROW,
     HEADERS,
     TABLE_NAME,
-    _assign_markdown_plan,
-    _build_markdown_dataframe,
     build,
 )
 
 
 def test_assign_markdown_plan_rules():
     """Markdown rules should follow age and demand thresholds."""
-    assert _assign_markdown_plan(400, 0, "Obsolete") == (
+    assert assign_markdown_plan(400, 0, "Obsolete") == (
         MARKDOWN_THRESHOLDS["liquidate_markdown_pct"],
         "Liquidate",
     )
-    assert _assign_markdown_plan(300, 5, "Slow-Moving") == (
+    assert assign_markdown_plan(300, 5, "Slow-Moving") == (
         MARKDOWN_THRESHOLDS["markdown_20_pct"],
         "20% Markdown",
     )
-    assert _assign_markdown_plan(200, 5, "Excess / Aged") == (
+    assert assign_markdown_plan(200, 5, "Excess / Aged") == (
         MARKDOWN_THRESHOLDS["markdown_10_pct"],
         "10% Markdown",
     )
-    assert _assign_markdown_plan(90, 10, "Excess") == (0.0, "Transfer First")
-    assert _assign_markdown_plan(90, 10, "Slow-Moving") == (0.0, "Hold")
+    assert assign_markdown_plan(90, 10, "Excess") == (0.0, "Transfer First")
+    assert assign_markdown_plan(90, 10, "Slow-Moving") == (0.0, "Hold")
 
 
 def test_build_markdown_dataframe_filters_and_calculates():
     """Planner should include eligible statuses and compute markdown price."""
     df = generate_inventory_data(row_count=120, seed=42)
-    planner = _build_markdown_dataframe(df)
+    planner = build_markdown_dataframe(df)
 
     assert list(planner.columns) == HEADERS
     assert planner["Recommended Disposition"].notna().all()

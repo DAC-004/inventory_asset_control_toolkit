@@ -40,10 +40,12 @@ def test_inventory_total_value_calculation():
     pd.testing.assert_series_equal(df["total_value"], expected, check_names=False)
 
 
-def test_inventory_product_names_exclude_mavis():
+def test_inventory_product_names_use_catalog_brands():
+    from src.data_generation.generate_inventory import PRODUCT_CATALOG
+
+    catalog_names = {product[2] for product in PRODUCT_CATALOG}
     df = generate_inventory_data(row_count=120, seed=42)
-    combined = " ".join(df["product_name"].astype(str).tolist())
-    assert "Mavis" not in combined
+    assert set(df["product_name"]).issubset(catalog_names)
 
 
 def test_save_inventory_data_writes_csv(tmp_path):

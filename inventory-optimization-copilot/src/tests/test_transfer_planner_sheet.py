@@ -3,29 +3,31 @@
 from openpyxl import Workbook
 
 from src.data_generation.generate_inventory import generate_inventory_data
+from src.domain.constants import TRANSFER_MARGIN_RATE
+from src.services.transfer_service import (
+    build_transfer_dataframe,
+    estimate_transfer_cost,
+)
 from src.sheets.transfer_planner_sheet import (
     DATA_START_ROW,
     HEADER_ROW,
     HEADERS,
-    MARGIN_RATE,
     TABLE_NAME,
-    _build_transfer_dataframe,
-    _estimate_transfer_cost,
     build,
 )
 
 
 def test_estimate_transfer_cost_increases_with_quantity():
     """Transfer cost should scale with quantity moved."""
-    low = _estimate_transfer_cost("DC-NY", "Store-Bronx", 5)
-    high = _estimate_transfer_cost("DC-NY", "Store-Bronx", 20)
+    low = estimate_transfer_cost("DC-NY", "Store-Bronx", 5)
+    high = estimate_transfer_cost("DC-NY", "Store-Bronx", 20)
     assert high > low
 
 
 def test_build_transfer_dataframe_net_benefit_model():
     """Transfers should use margin protected minus transfer cost with positive net benefit."""
     df = generate_inventory_data(row_count=120, seed=42)
-    transfers = _build_transfer_dataframe(df)
+    transfers = build_transfer_dataframe(df)
 
     assert list(transfers.columns) == HEADERS
     assert not transfers.empty, "Expected category-matched transfer candidates"
@@ -36,7 +38,9 @@ def test_build_transfer_dataframe_net_benefit_model():
     import numpy as np
 
     expected_margin = (
-        transfers["Suggested Transfer Quantity"] * transfers["Unit Cost"] * MARGIN_RATE
+        transfers["Suggested Transfer Quantity"]
+        * transfers["Unit Cost"]
+        * TRANSFER_MARGIN_RATE
     ).round(2)
     expected_net = (expected_margin - transfers["Transfer Cost"]).round(2)
     np.testing.assert_allclose(

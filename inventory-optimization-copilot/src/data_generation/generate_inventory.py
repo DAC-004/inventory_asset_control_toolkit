@@ -17,36 +17,18 @@ from config.workbook_config import (
     CSV_FILES,
     DATA_GENERATED_DIR,
     DEMO_REFERENCE_DATE,
-    INVENTORY_THRESHOLDS,
     RANDOM_SEED,
     ROW_COUNTS,
 )
+from src.domain.schemas import INVENTORY_COLUMN_ORDER
+from src.services.inventory_metrics import (
+    assign_status_and_action,
+    calc_gross_margin_pct,
+    calc_sell_through_rate,
+)
 
 # Column order matches Master Inventory sheet headers
-COLUMN_ORDER = [
-    "item_id",
-    "sku",
-    "product_name",
-    "category",
-    "subcategory",
-    "location",
-    "location_type",
-    "region",
-    "quantity_on_hand",
-    "min_stock",
-    "max_stock",
-    "unit_cost",
-    "selling_price",
-    "total_value",
-    "last_movement_date",
-    "last_sale_date",
-    "age_days",
-    "demand_90_day",
-    "sell_through_rate",
-    "gross_margin_pct",
-    "status",
-    "recommended_action",
-]
+COLUMN_ORDER = INVENTORY_COLUMN_ORDER
 
 # (category, subcategory, product_name, unit_cost)
 PRODUCT_CATALOG: list[tuple[str, str, str, float]] = [
@@ -151,61 +133,6 @@ STATUS_SCENARIOS: list[dict] = [
 ]
 
 
-def assign_status_and_action(
-    quantity_on_hand: int,
-    min_stock: int,
-    max_stock: int,
-    age_days: int,
-    demand_90_day: int,
-    sell_through_rate: float,
-) -> tuple[str, str]:
-    """
-    Apply inventory business rules in priority order (specs §7.1).
-
-    Returns:
-        (status, recommended_action) tuple.
-    """
-    thresholds = INVENTORY_THRESHOLDS
-
-    if quantity_on_hand < min_stock:
-        return "Stockout Risk", "Replenish"
-
-    if (
-        age_days > thresholds["obsolete_age_days"]
-        and demand_90_day <= thresholds["zero_demand"]
-    ):
-        return "Obsolete", "Liquidate"
-
-    if quantity_on_hand > max_stock and age_days > thresholds["excess_aged_age_days"]:
-        return "Excess / Aged", "Transfer or Markdown"
-
-    if quantity_on_hand > max_stock:
-        return "Excess", "Review Transfer"
-
-    if (
-        age_days > thresholds["slow_moving_age_days"]
-        and sell_through_rate < thresholds["slow_moving_sell_through_rate"]
-    ):
-        return "Slow-Moving", "Markdown Review"
-
-    return "Healthy", "Monitor"
-
-
-def _calc_sell_through_rate(quantity_on_hand: int, demand_90_day: int) -> float:
-    """Sell-through = 90-day demand / (on-hand + demand), capped at 1.0."""
-    denominator = quantity_on_hand + demand_90_day
-    if denominator == 0:
-        return 0.0
-    return round(min(demand_90_day / denominator, 1.0), 4)
-
-
-def _calc_gross_margin_pct(unit_cost: float, selling_price: float) -> float:
-    """Gross margin % = (Selling Price - Unit Cost) / Selling Price."""
-    if selling_price <= 0:
-        return 0.0
-    return round((selling_price - unit_cost) / selling_price, 4)
-
-
 def _calc_dates_from_age(
     age_days: int, reference: date, rng: np.random.Generator
 ) -> tuple[date, date]:
@@ -238,8 +165,8 @@ def _build_record(
     markup = float(rng.uniform(*markup_range))
     selling_price = round(unit_cost * markup, 2)
     total_value = round(quantity_on_hand * unit_cost, 2)
-    sell_through_rate = _calc_sell_through_rate(quantity_on_hand, demand_90_day)
-    gross_margin_pct = _calc_gross_margin_pct(unit_cost, selling_price)
+    sell_through_rate = calc_sell_through_rate(quantity_on_hand, demand_90_day)
+    gross_margin_pct = calc_gross_margin_pct(unit_cost, selling_price)
     last_movement_date, last_sale_date = _calc_dates_from_age(age_days, reference, rng)
     status, recommended_action = assign_status_and_action(
         quantity_on_hand,

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inventory-optimization-copilot"
+version = "2.0.0"
+description = "Generate Inventory Optimization Copilot Excel workbook"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "openpyxl",
+    "pandas",
+    "numpy",
+    "faker",
+    "python-dateutil",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "ruff",
+    "mypy",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+pythonpath = ["."]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["openpyxl.*", "pandas.*", "numpy.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["numpy"]
+ignore_errors = true

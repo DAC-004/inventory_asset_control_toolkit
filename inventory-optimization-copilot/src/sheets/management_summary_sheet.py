@@ -9,18 +9,12 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet.worksheet import Worksheet
 
 from config import style_config as sc
-from config.workbook_config import (
-    AS_OF_DATE,
-    INVENTORY_THRESHOLDS,
-    ROW_COUNTS,
-    VERSION,
-)
-from src.sheets.aged_excess_sheet import _build_analysis_dataframe
-from src.workbook.formulas import (
-    count_if_range,
-    sum_if_numeric,
-    sum_if_range,
-    sum_range,
+from config.workbook_config import AS_OF_DATE, ROW_COUNTS, VERSION
+from src.domain.constants import MASTER_DATA_START
+from src.services.kpi_service import management_summary_kpis
+from src.services.summary_service import (
+    recommended_action_summary,
+    top_inventory_risks,
 )
 from src.workbook.styles import (
     apply_kpi_card_style,
@@ -32,17 +26,6 @@ from src.workbook.utils import (
     set_column_widths,
     set_print_layout,
 )
-
-MASTER_SHEET = "Master Inventory"
-MASTER_DATA_START = 3
-
-COL_TOTAL_VALUE = "N"
-COL_AGE_DAYS = "Q"
-COL_STATUS = "U"
-COL_RECOMMENDED_ACTION = "V"
-
-MARKDOWN_ACTIONS = ("Markdown Review", "Transfer or Markdown", "Liquidate")
-TRANSFER_ACTIONS = ("Review Transfer", "Transfer or Markdown")
 
 INVENTORY_RISK_HEADERS = ["SKU", "Location", "Issue", "Value"]
 
@@ -84,77 +67,6 @@ def _data_end(start_row: int, record_count: int) -> int:
     if record_count <= 0:
         return start_row
     return start_row + record_count - 1
-
-
-def _inventory_kpis(inv_end: int) -> list[tuple[str, str, str]]:
-    start = MASTER_DATA_START
-    aged_threshold = INVENTORY_THRESHOLDS["excess_aged_age_days"]
-    excess_formula = "=" + "+".join(
-        sum_if_range(
-            MASTER_SHEET, COL_STATUS, status, COL_TOTAL_VALUE, start, inv_end
-        ).lstrip("=")
-        for status in ("Excess", "Excess / Aged")
-    )
-    transfer_formula = "=" + "+".join(
-        count_if_range(
-            MASTER_SHEET, COL_RECOMMENDED_ACTION, start, inv_end, action
-        ).lstrip("=")
-        for action in TRANSFER_ACTIONS
-    )
-    markdown_formula = "=" + "+".join(
-        count_if_range(
-            MASTER_SHEET, COL_RECOMMENDED_ACTION, start, inv_end, action
-        ).lstrip("=")
-        for action in MARKDOWN_ACTIONS
-    )
-    return [
-        (
-            "Total Inventory Value",
-            sum_range(MASTER_SHEET, COL_TOTAL_VALUE, start, inv_end),
-            "currency",
-        ),
-        (
-            "Aged Inventory Value",
-            sum_if_numeric(
-                MASTER_SHEET,
-                COL_AGE_DAYS,
-                f">{aged_threshold}",
-                COL_TOTAL_VALUE,
-                start,
-                inv_end,
-            ),
-            "currency",
-        ),
-        ("Excess Inventory Value", excess_formula, "currency"),
-        ("Transfer Candidates", transfer_formula, "integer"),
-        ("Markdown Candidates", markdown_formula, "integer"),
-    ]
-
-
-def _recommended_action_summary(inventory: pd.DataFrame) -> list[tuple[str, int]]:
-    if inventory.empty:
-        return []
-    counts = inventory["recommended_action"].value_counts()
-    return [(str(action), int(count)) for action, count in counts.items()]
-
-
-def _top_inventory_risks(
-    inventory: pd.DataFrame, limit: int = 5
-) -> list[dict[str, Any]]:
-    analysis = _build_analysis_dataframe(inventory)
-    if analysis.empty:
-        return []
-    rows: list[dict[str, Any]] = []
-    for _, row in analysis.head(limit).iterrows():
-        rows.append(
-            {
-                "SKU": row["SKU"],
-                "Location": row["Location"],
-                "Issue": row["Issue Type"],
-                "Value": row["Inventory Value"],
-            }
-        )
-    return rows
 
 
 def _write_title_banner(ws: Worksheet) -> None:
@@ -276,14 +188,16 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
     inventory = context["data"].get("inventory", pd.DataFrame())
     inv_count = len(inventory) or ROW_COUNTS["inventory"]["default"]
     inv_end = _data_end(MASTER_DATA_START, inv_count)
-    inventory_risks = _top_inventory_risks(inventory)
+    inventory_risks = top_inventory_risks(inventory)
 
     _write_title_banner(ws)
     apply_section_header_style(
         ws, SECTION1_ROW, 1, "1. Inventory Health Highlights", span_cols=8
     )
-    _write_kpi_cards(ws, KPI1_TITLE_ROW, KPI1_VALUE_ROW, _inventory_kpis(inv_end))
-    _write_action_summary(ws, _recommended_action_summary(inventory))
+    _write_kpi_cards(
+        ws, KPI1_TITLE_ROW, KPI1_VALUE_ROW, management_summary_kpis(inv_end)
+    )
+    _write_action_summary(ws, recommended_action_summary(inventory))
     _write_risk_table(ws, inventory_risks)
     _write_action_plan(ws)
 

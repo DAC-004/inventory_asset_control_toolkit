@@ -9,23 +9,20 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet.worksheet import Worksheet
 
 from config import style_config as sc
-from config.workbook_config import (
-    INVENTORY_STATUSES,
-    INVENTORY_THRESHOLDS,
-    RECOMMENDED_ACTIONS,
+from src.domain.constants import MASTER_DATA_START
+from src.services.kpi_dashboard_service import (
+    compute_action_summary,
+    compute_aging_summary,
+    compute_location_summary,
+    compute_status_summary,
+    compute_top_excess,
 )
+from src.services.kpi_service import dashboard_kpi_definitions
 from src.workbook.charts import (
     add_bar_chart,
     add_pie_chart,
     make_category_reference,
     make_data_reference,
-)
-from src.workbook.formulas import (
-    average_range,
-    count_if_range,
-    sum_if_numeric,
-    sum_if_range,
-    sum_range,
 )
 from src.workbook.styles import (
     apply_kpi_card_style,
@@ -40,31 +37,11 @@ from src.workbook.utils import (
     set_landscape_print,
 )
 
-MASTER_SHEET = "Master Inventory"
-MASTER_DATA_START = 3
-
-# Master Inventory column letters
-COL_TOTAL_VALUE = "N"
-COL_AGE_DAYS = "Q"
-COL_GROSS_MARGIN = "T"
-COL_STATUS = "U"
-COL_RECOMMENDED_ACTION = "V"
-
 TITLE_ROW = 1
 KPI_ROW_1_TITLE = 3
 KPI_ROW_1_VALUE = 4
 KPI_ROW_2_TITLE = 6
 KPI_ROW_2_VALUE = 7
-
-MARKDOWN_ACTIONS = ("Markdown Review", "Transfer or Markdown", "Liquidate")
-TRANSFER_ACTIONS = ("Review Transfer", "Transfer or Markdown")
-
-AGING_BUCKETS = [
-    ("0-90 Days", 0, 90),
-    ("91-180 Days", 91, 180),
-    ("181-365 Days", 181, 365),
-    ("365+ Days", 366, 99999),
-]
 
 
 def _data_end_row(record_count: int) -> int:
@@ -72,99 +49,6 @@ def _data_end_row(record_count: int) -> int:
     if record_count <= 0:
         return MASTER_DATA_START
     return MASTER_DATA_START + record_count - 1
-
-
-def _recovery_value_formula(start: int, end: int) -> str:
-    """Estimated recovery from markdown / liquidation candidate inventory."""
-    parts = [
-        sum_if_range(
-            MASTER_SHEET, COL_RECOMMENDED_ACTION, action, COL_TOTAL_VALUE, start, end
-        )
-        for action in MARKDOWN_ACTIONS
-    ]
-    return "=" + "+".join(part.lstrip("=") for part in parts)
-
-
-def _kpi_definitions(start: int, end: int) -> list[tuple[str, str, str]]:
-    """
-    Return KPI card definitions: (title, formula, format_type).
-
-    format_type: currency | integer | percentage
-    """
-    aged_threshold = INVENTORY_THRESHOLDS["excess_aged_age_days"]
-    return [
-        (
-            "Total Inventory Value",
-            sum_range(MASTER_SHEET, COL_TOTAL_VALUE, start, end),
-            "currency",
-        ),
-        (
-            "Aged Inventory Value",
-            sum_if_numeric(
-                MASTER_SHEET,
-                COL_AGE_DAYS,
-                f">{aged_threshold}",
-                COL_TOTAL_VALUE,
-                start,
-                end,
-            ),
-            "currency",
-        ),
-        (
-            "Excess Inventory Value",
-            "="
-            + "+".join(
-                sum_if_range(
-                    MASTER_SHEET, COL_STATUS, status, COL_TOTAL_VALUE, start, end
-                ).lstrip("=")
-                for status in ("Excess", "Excess / Aged")
-            ),
-            "currency",
-        ),
-        (
-            "Slow-Moving SKU Count",
-            count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Slow-Moving"),
-            "integer",
-        ),
-        (
-            "Obsolete SKU Count",
-            count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Obsolete"),
-            "integer",
-        ),
-        (
-            "Transfer Candidate Count",
-            "="
-            + "+".join(
-                count_if_range(
-                    MASTER_SHEET, COL_RECOMMENDED_ACTION, start, end, action
-                ).lstrip("=")
-                for action in TRANSFER_ACTIONS
-            ),
-            "integer",
-        ),
-        (
-            "Markdown Candidate Count",
-            "="
-            + "+".join(
-                count_if_range(
-                    MASTER_SHEET, COL_RECOMMENDED_ACTION, start, end, action
-                ).lstrip("=")
-                for action in MARKDOWN_ACTIONS
-            ),
-            "integer",
-        ),
-        (
-            "Stockout Risk Count",
-            count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Stockout Risk"),
-            "integer",
-        ),
-        ("Estimated Recovery Value", _recovery_value_formula(start, end), "currency"),
-        (
-            "Average Gross Margin %",
-            average_range(MASTER_SHEET, COL_GROSS_MARGIN, start, end),
-            "percentage",
-        ),
-    ]
 
 
 def _write_title_banner(ws: Worksheet) -> None:
@@ -186,7 +70,7 @@ def _write_title_banner(ws: Worksheet) -> None:
 
 def _write_kpi_cards(ws: Worksheet, start: int, end: int) -> None:
     """Render 10 KPI cards in a 5×2 grid."""
-    kpis = _kpi_definitions(start, end)
+    kpis = dashboard_kpi_definitions(start, end)
     card_cols = [1, 3, 5, 7, 9]
 
     for idx, (title, formula, fmt) in enumerate(kpis):
@@ -206,79 +90,6 @@ def _write_kpi_cards(ws: Worksheet, start: int, end: int) -> None:
             value_cell.number_format = sc.NUMBER_FORMATS["percentage"]
         else:
             value_cell.number_format = sc.NUMBER_FORMATS["integer"]
-
-
-def _compute_location_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate inventory value by location."""
-    if df.empty:
-        return pd.DataFrame(columns=["location", "inventory_value"])
-    return (
-        df.groupby("location", as_index=False)["total_value"]
-        .sum()
-        .rename(columns={"total_value": "inventory_value"})
-        .sort_values("inventory_value", ascending=False)
-    )
-
-
-def _compute_status_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate count and value by inventory status."""
-    if df.empty:
-        return pd.DataFrame(columns=["status", "sku_count", "inventory_value"])
-    summary = df.groupby("status", as_index=False).agg(
-        sku_count=("item_id", "count"), inventory_value=("total_value", "sum")
-    )
-    order = {status: i for i, status in enumerate(INVENTORY_STATUSES)}
-    summary["_order"] = summary["status"].map(order)
-    return summary.sort_values("_order").drop(columns="_order")
-
-
-def _compute_aging_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate count and value by aging bucket."""
-    rows = []
-    for label, low, high in AGING_BUCKETS:
-        if df.empty:
-            rows.append({"aging_bucket": label, "sku_count": 0, "inventory_value": 0.0})
-            continue
-        mask = (df["age_days"] >= low) & (df["age_days"] <= high)
-        subset = df.loc[mask]
-        rows.append(
-            {
-                "aging_bucket": label,
-                "sku_count": len(subset),
-                "inventory_value": subset["total_value"].sum(),
-            }
-        )
-    return pd.DataFrame(rows)
-
-
-def _compute_action_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate count and value by recommended action."""
-    if df.empty:
-        return pd.DataFrame(
-            columns=["recommended_action", "sku_count", "inventory_value"]
-        )
-    summary = df.groupby("recommended_action", as_index=False).agg(
-        sku_count=("item_id", "count"), inventory_value=("total_value", "sum")
-    )
-    order = {action: i for i, action in enumerate(RECOMMENDED_ACTIONS)}
-    summary["_order"] = summary["recommended_action"].map(order)
-    return summary.sort_values("_order").drop(columns="_order")
-
-
-def _compute_top_excess(df: pd.DataFrame, limit: int = 10) -> pd.DataFrame:
-    """Return top excess items by excess inventory value."""
-    if df.empty:
-        return pd.DataFrame(
-            columns=["sku", "product_name", "location", "excess_qty", "excess_value"]
-        )
-    working = df.copy()
-    working["excess_qty"] = working["quantity_on_hand"] - working["max_stock"]
-    working = working[working["excess_qty"] > 0]
-    working["excess_value"] = working["excess_qty"] * working["unit_cost"]
-    top = working.nlargest(limit, "excess_value")
-    return top[
-        ["sku", "product_name", "location", "excess_qty", "excess_value"]
-    ].reset_index(drop=True)
 
 
 def _write_table_block(
@@ -324,7 +135,7 @@ def _write_summary_tables(
     meta: dict[str, dict[str, int]] = {}
     row = start_row
 
-    loc_df = _compute_location_summary(df)
+    loc_df = compute_location_summary(df)
     _, first, last = _write_table_block(
         ws,
         row,
@@ -340,7 +151,7 @@ def _write_summary_tables(
     }
     row = last + 3
 
-    status_df = _compute_status_summary(df)
+    status_df = compute_status_summary(df)
     _, first, last = _write_table_block(
         ws,
         row,
@@ -356,7 +167,7 @@ def _write_summary_tables(
     }
     row = last + 3
 
-    aging_df = _compute_aging_summary(df)
+    aging_df = compute_aging_summary(df)
     _, first, last = _write_table_block(
         ws,
         row,
@@ -372,7 +183,7 @@ def _write_summary_tables(
     }
     row = last + 3
 
-    action_df = _compute_action_summary(df)
+    action_df = compute_action_summary(df)
     _, first, last = _write_table_block(
         ws,
         row,
@@ -388,7 +199,7 @@ def _write_summary_tables(
     }
     row = last + 3
 
-    excess_df = _compute_top_excess(df)
+    excess_df = compute_top_excess(df)
     _, first, last = _write_table_block(
         ws,
         row,

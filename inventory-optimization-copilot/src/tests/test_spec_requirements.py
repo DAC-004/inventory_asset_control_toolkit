@@ -28,4 +28,4 @@ def test_required_sheets_have_headers(tmp_path):
         == INVENTORY_HEADERS[0]
     )
     assert wb.sheetnames == SHEET_ORDER
-    assert "IT Asset Register" not in wb.sheetnames
+    assert len(wb.sheetnames) == 7

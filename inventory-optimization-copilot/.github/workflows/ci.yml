@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [feature/inventory-optimization-copilot]
+    paths:
+      - "inventory-optimization-copilot/**"
+  pull_request:
+    paths:
+      - "inventory-optimization-copilot/**"
+
+defaults:
+  run:
+    working-directory: inventory-optimization-copilot
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-cov black ruff mypy
+
+      - name: Compile
+        run: python -m compileall src config
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Black
+        run: black --check .
+
+      - name: Mypy
+        run: mypy src config
+
+      - name: Pytest
+        run: pytest --cov=src --cov-report=term-missing -q
+
+      - name: Build workbook
+        run: python src/main.py

@@ -187,35 +187,6 @@ INVENTORY_STATUS_RISK = {
     "Obsolete": "obsolete",
 }
 
-# Software compliance status → risk level
-COMPLIANCE_STATUS_RISK = {
-    "Compliant": "compliant",
-    "Renewal Watch": "renewal_watch",
-    "Renewal Due Soon": "critical",
-    "Over-Assigned": "over_assigned",
-}
-
-# IT asset status → risk level
-IT_ASSET_STATUS_RISK = {
-    "In Stock": "neutral",
-    "Assigned": "healthy",
-    "In Repair": "watch",
-    "Returned": "neutral",
-    "Retired": "neutral",
-    "Disposed": "neutral",
-    "Missing": "missing",
-}
-
-# Disposal status → risk level
-DISPOSAL_STATUS_RISK = {
-    "Pending Wipe": "pending",
-    "Wiped": "watch",
-    "Pending Vendor Pickup": "watch",
-    "Disposed": "healthy",
-    "Certificate Missing": "critical",
-    "Hold for Review": "neutral",
-}
-
 # Backward-compatible alias
 RISK_COLORS = RISK_LEVEL_COLORS
 

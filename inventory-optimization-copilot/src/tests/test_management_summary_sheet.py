@@ -4,19 +4,19 @@ from openpyxl import Workbook
 
 from src.data_generation.generate_inventory import generate_inventory_data
 from src.main import generate_all_data
+from src.services.summary_service import top_inventory_risks
 from src.sheets.management_summary_sheet import (
     KPI1_VALUE_ROW,
     RISK_DATA_START_ROW,
     SECTION1_ROW,
     SECTION4_ROW,
-    _top_inventory_risks,
     build,
 )
 
 
 def test_top_inventory_risk_helper_returns_rows():
     inventory = generate_inventory_data(row_count=120, seed=42)
-    inv_risks = _top_inventory_risks(inventory)
+    inv_risks = top_inventory_risks(inventory)
     assert 1 <= len(inv_risks) <= 5
     assert "SKU" in inv_risks[0]
 

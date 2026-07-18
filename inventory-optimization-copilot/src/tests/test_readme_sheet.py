@@ -29,7 +29,8 @@ def test_readme_sheet_contains_required_sections():
     assert "Recommended Demo Path" in combined
     assert "Key Capabilities" in combined
     assert "Inventory Dashboard" in combined
-    assert "IT Asset Register" not in combined
+    assert "Transfer Planner" in combined
+    assert "Management Summary" in combined
 
 
 def test_readme_sheet_has_formatted_title_area():

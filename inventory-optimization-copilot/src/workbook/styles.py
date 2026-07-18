@@ -266,54 +266,6 @@ def apply_inventory_status_formatting(
     )
 
 
-def apply_compliance_status_formatting(
-    ws: Worksheet,
-    target_range: str,
-    status_column_letter: str,
-    first_data_row: int,
-) -> None:
-    """Apply software compliance status risk colors to a range."""
-    apply_risk_conditional_formatting(
-        ws,
-        target_range,
-        status_column_letter,
-        first_data_row,
-        sc.COMPLIANCE_STATUS_RISK,
-    )
-
-
-def apply_it_asset_status_formatting(
-    ws: Worksheet,
-    target_range: str,
-    status_column_letter: str,
-    first_data_row: int,
-) -> None:
-    """Apply IT asset status risk colors to a range."""
-    apply_risk_conditional_formatting(
-        ws,
-        target_range,
-        status_column_letter,
-        first_data_row,
-        sc.IT_ASSET_STATUS_RISK,
-    )
-
-
-def apply_disposal_status_formatting(
-    ws: Worksheet,
-    target_range: str,
-    status_column_letter: str,
-    first_data_row: int,
-) -> None:
-    """Apply disposal status risk colors to a range."""
-    apply_risk_conditional_formatting(
-        ws,
-        target_range,
-        status_column_letter,
-        first_data_row,
-        sc.DISPOSAL_STATUS_RISK,
-    )
-
-
 def apply_row_risk_fill(
     ws: Worksheet,
     row: int,
