@@ -82,6 +82,23 @@ OPEN_PO_STATUSES = [
 ]
 
 # ---------------------------------------------------------------------------
+# Demand forecast parameters (Prompt 06)
+# Primary method selection metric: lowest WAPE on holdout window.
+# ---------------------------------------------------------------------------
+
+FORECAST_HOLDOUT_WEEKS = 8
+FORECAST_PRIMARY_METRIC = "WAPE"
+FORECAST_SES_ALPHA = 0.30
+FORECAST_WMA_WEIGHTS = [0.40, 0.30, 0.20, 0.10]
+FORECAST_MA_WINDOW = 4
+FORECAST_BLEND_FORECAST_WEIGHT = 0.60
+FORECAST_DEMO_CHART_SKU_COUNT = 3
+
+DEFAULT_SERVICE_LEVEL_TARGET = 0.95
+SERVICE_LEVEL_WATCH_GAP = 0.02
+SERVICE_LEVEL_BELOW_TARGET_GAP = 0.05
+
+# ---------------------------------------------------------------------------
 # Required sheet order (Excel limit: 31 characters per name)
 # Prompts 04–09 will add: Inventory Classification, Cycle Count Plan,
 # Replenishment Planning, Demand Forecast, Service Level Analysis,
@@ -96,6 +113,8 @@ SHEET_ORDER = [
     "Aged Excess Analysis",
     "Cycle Count Plan",
     "Replenishment Planning",
+    "Demand Forecast",
+    "Service Level Analysis",
     "Markdown Planner",
     "Transfer Planner",
     "Management Summary",

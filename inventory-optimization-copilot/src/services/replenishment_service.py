@@ -21,6 +21,7 @@ from config.workbook_config import (
     SERVICE_LEVEL_Z_SCORES,
 )
 from src.services.classification_service import build_classification_dataframe
+from src.services.forecast_service import build_forecast_lookup, resolve_planning_demand
 
 REPLENISHMENT_HEADERS = [
     "SKU",
@@ -42,6 +43,8 @@ REPLENISHMENT_HEADERS = [
     "Unit Cost",
     "Annual Demand",
     "Avg Daily Demand",
+    "Planning Avg Daily Demand",
+    "Demand Source",
     "Avg Weekly Demand",
     "Demand Std Dev",
     "Coefficient of Variation",
@@ -527,6 +530,8 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
                 "has_late_po": bool(row["has_late_po"]),
             }
 
+    forecast_lookup = build_forecast_lookup(data)
+
     rows: list[dict[str, Any]] = []
     for _, inv in inventory.iterrows():
         sku = inv["sku"]
@@ -552,6 +557,13 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
         )
 
         dmd = _demand_stats(demand, sku, loc_id)
+        fc = forecast_lookup.get((str(sku), str(loc_id)), {})
+        planning_daily, demand_source = resolve_planning_demand(
+            dmd["avg_daily_demand"],
+            float(fc.get("weekly_level", 0.0)),
+            float(fc.get("selected_wape", 1.0)),
+            float(fc.get("historical_wape", 1.0)),
+        )
         qoh = int(inv["quantity_on_hand"])
         allocated = int(inv["quantity_allocated"])
         backorder = int(inv["backorder_quantity"])
@@ -560,10 +572,10 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
         has_late_po = bool(open_info.get("has_late_po", False))
 
         projected = qoh + open_po_qty - allocated - backorder
-        expected_ltd = round(dmd["avg_daily_demand"] * planning_lt, 2)
+        expected_ltd = round(planning_daily * planning_lt, 2)
         safety_stock, ss_method = _safety_stock(
             z_score,
-            dmd["avg_daily_demand"],
+            planning_daily,
             dmd["demand_std_dev"],
             planning_lt,
             lt_stats.std_dev,
@@ -587,7 +599,7 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
             reorder_point=reorder_point,
             max_stock=max_stock,
             min_stock=min_stock,
-            avg_daily_demand=dmd["avg_daily_demand"],
+            avg_daily_demand=planning_daily,
             net_requirement=net_requirement,
             eoq=eoq,
             moq=moq,
@@ -598,7 +610,9 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
             unit_cost=unit_cost,
             supplier_mov=float(supplier_mov.get(supplier_id, 0)),
         )
-        order_by = _order_by_date(projected, reorder_point, dmd["avg_daily_demand"])
+        if demand_source != "Historical Average":
+            notes = f"Demand source: {demand_source}. {notes}"
+        order_by = _order_by_date(projected, reorder_point, planning_daily)
 
         rows.append(
             {
@@ -621,6 +635,8 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
                 "Unit Cost": round(unit_cost, 2),
                 "Annual Demand": dmd["annual_demand"],
                 "Avg Daily Demand": dmd["avg_daily_demand"],
+                "Planning Avg Daily Demand": planning_daily,
+                "Demand Source": demand_source,
                 "Avg Weekly Demand": dmd["avg_weekly_demand"],
                 "Demand Std Dev": dmd["demand_std_dev"],
                 "Coefficient of Variation": dmd["coefficient_of_variation"],

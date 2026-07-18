@@ -2,7 +2,7 @@
 openpyxl chart builders for dashboard and management summary sheets.
 """
 
-from openpyxl.chart import BarChart, PieChart, Reference
+from openpyxl.chart import BarChart, LineChart, PieChart, Reference
 from openpyxl.chart.label import DataLabelList
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -124,6 +124,31 @@ def add_pie_chart(
 ) -> PieChart:
     """Create a pie chart and anchor it on the worksheet."""
     chart = create_pie_chart(title, data_ref, categories_ref, **kwargs)
+    ws.add_chart(chart, anchor)
+    return chart
+
+
+def add_line_chart(
+    ws: Worksheet,
+    title: str,
+    data_ref: Reference,
+    categories_ref: Reference,
+    anchor: str = "E5",
+    width: float = 14,
+    height: float = 8,
+    y_axis_title: str | None = None,
+) -> LineChart:
+    """Create a line chart and anchor it on the worksheet."""
+    chart = LineChart()
+    chart.style = 10
+    chart.width = width
+    chart.height = height
+    _apply_chart_title(chart, title)
+    chart.add_data(data_ref, titles_from_data=True)
+    chart.set_categories(categories_ref)
+    if y_axis_title:
+        chart.y_axis.title = y_axis_title
+    chart.legend = None
     ws.add_chart(chart, anchor)
     return chart
 
