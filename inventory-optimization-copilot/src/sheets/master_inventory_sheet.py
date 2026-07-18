@@ -10,7 +10,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from config import style_config as sc
-from src.data_generation.generate_inventory import COLUMN_ORDER
+from src.services.workbook_inventory import COLUMN_ORDER
 from src.workbook.styles import (
     apply_inventory_status_formatting,
     apply_risk_conditional_formatting,

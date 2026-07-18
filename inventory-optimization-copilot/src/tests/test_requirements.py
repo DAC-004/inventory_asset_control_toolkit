@@ -5,10 +5,8 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 from config.workbook_config import OUTPUT_FILENAME, SHEET_ORDER, WORKBOOK_PATH
-from src.data_generation.generate_inventory import (
-    COLUMN_ORDER as INVENTORY_COLUMNS,
-    generate_inventory_data,
-)
+from src.data_generation.generate_inventory import generate_inventory_data
+from src.domain.schemas import INVENTORY_COLUMN_ORDER
 from src.main import generate_all_data
 from src.workbook.builder import build_workbook
 
@@ -20,7 +18,7 @@ def test_inventory_data_is_not_empty():
 
 def test_inventory_data_includes_required_columns():
     df = generate_inventory_data(row_count=50, seed=42)
-    assert list(df.columns) == INVENTORY_COLUMNS
+    assert list(df.columns) == INVENTORY_COLUMN_ORDER + ["location"]
 
 
 def test_workbook_file_is_created(tmp_path: Path):

@@ -60,6 +60,13 @@ SHEET_ORDER = [
 
 CSV_FILES = {
     "inventory": "inventory_data.csv",
+    "inventory_snapshots": "inventory_snapshots.csv",
+    "demand_history": "demand_history.csv",
+    "customer_orders": "customer_orders.csv",
+    "cycle_counts": "cycle_counts.csv",
+    "suppliers": "suppliers.csv",
+    "purchase_orders": "purchase_orders.csv",
+    "purchase_order_receipts": "purchase_order_receipts.csv",
 }
 
 # ---------------------------------------------------------------------------

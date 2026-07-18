@@ -6,7 +6,7 @@ Usage (from project root):
 
 Generates:
     dist/Inventory_Optimization_Copilot.xlsx
-    data/generated/inventory_data.csv
+    data/generated/*.csv (8 inventory planning datasets)
 """
 
 from __future__ import annotations
@@ -14,12 +14,12 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Ensure project root is on sys.path when running as `python src/main.py`
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.workbook_config import (  # noqa: E402
+    CSV_FILES,
     DATA_GENERATED_DIR,
     DIST_DIR,
     RANDOM_SEED,
@@ -29,48 +29,47 @@ from config.workbook_config import (  # noqa: E402
     WORKBOOK_PATH,
     WORKBOOK_TITLE,
 )
-from src.data_generation.generate_inventory import (  # noqa: E402
-    generate_inventory_data,
-    save_inventory_data,
+from src.data_generation.pipeline import (  # noqa: E402
+    generate_all_datasets,
+    save_all_datasets,
 )
+from src.services.workbook_inventory import inventory_for_workbook  # noqa: E402
 from src.workbook.builder import build_workbook  # noqa: E402
 
 
 def _log(message: str) -> None:
-    """Print a user-facing progress message."""
     print(message)
 
 
 def ensure_output_directories() -> None:
-    """Create dist/ and data/generated/ if they do not exist."""
     DIST_DIR.mkdir(parents=True, exist_ok=True)
     DATA_GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def generate_all_data() -> dict:
     """
-    Run inventory data generation and persist CSV to data/generated/.
+    Run full data pipeline, validate, persist CSVs, return workbook context.
 
     Returns:
-        Dict of DataFrames keyed by domain name.
+        Dict with full datasets plus workbook-projected inventory.
     """
-    _log("  Generating inventory records...")
-    inventory_df = generate_inventory_data(
-        row_count=ROW_COUNTS["inventory"]["default"],
+    datasets = generate_all_datasets(
         seed=RANDOM_SEED,
+        row_count=ROW_COUNTS["inventory"]["default"],
+        validate=True,
     )
-
-    datasets = {"inventory": inventory_df}
-
+    paths = save_all_datasets(datasets)
     _log(f"  Saving CSV files to {DATA_GENERATED_DIR}/")
-    path = save_inventory_data(inventory_df)
-    _log(f"    {path.name} ({len(inventory_df):,} rows)")
+    for key, path in paths.items():
+        _log(f"    {path.name} ({len(datasets[key]):,} rows)")
 
-    return datasets
+    return {
+        **datasets,
+        "inventory": inventory_for_workbook(datasets["inventory"]),
+    }
 
 
 def main() -> int:
-    """Generate sample data and build the Excel workbook."""
     step = "startup"
     try:
         _log(f"{WORKBOOK_TITLE} {VERSION}")
@@ -79,8 +78,6 @@ def main() -> int:
         step = "creating output folders"
         _log("Step 1/4: Creating required folders...")
         ensure_output_directories()
-        _log(f"  dist/          -> {DIST_DIR}")
-        _log(f"  data/generated -> {DATA_GENERATED_DIR}")
 
         step = "generating sample data"
         _log("Step 2/4: Generating fictional sample data...")
@@ -99,7 +96,7 @@ def main() -> int:
         _log("=" * 60)
         _log("Build completed successfully.")
         _log(f"Workbook: {output_path.resolve()}")
-        _log(f"CSV data: {DATA_GENERATED_DIR.resolve()}/")
+        _log(f"CSV data: {DATA_GENERATED_DIR.resolve()}/ ({len(CSV_FILES)} files)")
         return 0
 
     except KeyboardInterrupt:
