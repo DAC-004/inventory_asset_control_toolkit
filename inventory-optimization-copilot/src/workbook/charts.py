@@ -2,7 +2,7 @@
 openpyxl chart builders for dashboard and management summary sheets.
 """
 
-from openpyxl.chart import BarChart, LineChart, PieChart, Reference
+from openpyxl.chart import BarChart, DoughnutChart, LineChart, PieChart, Reference
 from openpyxl.chart.label import DataLabelList
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -23,6 +23,9 @@ def create_bar_chart(
     width: float = 15,
     height: float = 10,
     y_axis_title: str | None = None,
+    horizontal: bool = False,
+    tick_label_skip: int = 1,
+    hide_legend: bool = False,
 ) -> BarChart:
     """
     Build a styled bar chart (not yet anchored to a worksheet).
@@ -35,26 +38,37 @@ def create_bar_chart(
         style: Built-in chart style index.
         width: Chart width in cm.
         height: Chart height in cm.
-        y_axis_title: Optional Y-axis label.
+        y_axis_title: Optional Y-axis label (value axis after orientation).
+        horizontal: Use horizontal bars for long category labels.
+        tick_label_skip: Skip every N category labels on the value axis.
+        hide_legend: Omit legend for single-series charts.
 
     Returns:
         Configured BarChart instance.
     """
     chart = BarChart()
-    chart.type = "col"
+    chart.type = "bar" if horizontal else "col"
     chart.grouping = grouping
     chart.style = style
     chart.width = width
     chart.height = height
     _apply_chart_title(chart, title)
+    chart.title.overlay = False
+    chart.legend.overlay = False
 
     chart.add_data(data_ref, titles_from_data=True)
     chart.set_categories(categories_ref)
 
+    value_axis = chart.x_axis if horizontal else chart.y_axis
+    category_axis = chart.y_axis if horizontal else chart.x_axis
     if y_axis_title:
-        chart.y_axis.title = y_axis_title
+        value_axis.title = y_axis_title
+    category_axis.tickLblSkip = max(1, tick_label_skip)
 
-    chart.legend.position = "b"
+    if hide_legend:
+        chart.legend = None
+    else:
+        chart.legend.position = "b"
     return chart
 
 
@@ -65,7 +79,8 @@ def create_pie_chart(
     style: int = 10,
     width: float = 12,
     height: float = 10,
-    show_percent_labels: bool = True,
+    show_percent_labels: bool = False,
+    legend_position: str = "r",
 ) -> PieChart:
     """
     Build a styled pie chart (not yet anchored to a worksheet).
@@ -77,7 +92,8 @@ def create_pie_chart(
         style: Built-in chart style index.
         width: Chart width in cm.
         height: Chart height in cm.
-        show_percent_labels: Show percentage labels on slices.
+        show_percent_labels: Show percentage labels on slices (off by default to reduce clutter).
+        legend_position: Legend placement (e.g. "r", "b").
 
     Returns:
         Configured PieChart instance.
@@ -87,16 +103,81 @@ def create_pie_chart(
     chart.width = width
     chart.height = height
     _apply_chart_title(chart, title)
+    chart.title.overlay = False
 
     chart.add_data(data_ref, titles_from_data=True)
     chart.set_categories(categories_ref)
+
+    chart.legend.position = legend_position
+    chart.legend.overlay = False
 
     if show_percent_labels:
         chart.dataLabels = DataLabelList()
         chart.dataLabels.showPercent = True
         chart.dataLabels.showCatName = False
         chart.dataLabels.showVal = False
+        chart.dataLabels.showLeaderLines = True
 
+    return chart
+
+
+def create_doughnut_chart(
+    title: str,
+    data_ref: Reference,
+    categories_ref: Reference,
+    style: int = 10,
+    width: float = 12,
+    height: float = 10,
+    legend_position: str = "r",
+) -> DoughnutChart:
+    """Build a styled doughnut chart (not yet anchored to a worksheet)."""
+    chart = DoughnutChart()
+    chart.style = style
+    chart.width = width
+    chart.height = height
+    _apply_chart_title(chart, title)
+    chart.title.overlay = False
+    chart.add_data(data_ref, titles_from_data=True)
+    chart.set_categories(categories_ref)
+    chart.legend.position = legend_position
+    chart.legend.overlay = False
+    return chart
+
+
+def create_clustered_bar_chart(
+    title: str,
+    data_refs: list[Reference],
+    categories_ref: Reference,
+    style: int = 10,
+    width: float = 18,
+    height: float = 8.5,
+    horizontal: bool = False,
+    y_axis_title: str | None = None,
+) -> BarChart:
+    """Build a multi-series clustered bar/column chart."""
+    chart = BarChart()
+    chart.type = "bar" if horizontal else "col"
+    chart.grouping = "clustered"
+    chart.style = style
+    chart.width = width
+    chart.height = height
+    _apply_chart_title(chart, title)
+    chart.title.overlay = False
+    chart.legend.position = "b"
+    chart.legend.overlay = False
+
+    for idx, data_ref in enumerate(data_refs):
+        chart.add_data(data_ref, titles_from_data=True)
+        if idx == 0:
+            chart.set_categories(categories_ref)
+
+    value_axis = chart.x_axis if horizontal else chart.y_axis
+    if y_axis_title:
+        value_axis.title = y_axis_title
+    if horizontal:
+        chart.y_axis.tickLblSkip = 1
+    else:
+        chart.x_axis.tickLblSkip = 1
     return chart
 
 
@@ -124,6 +205,34 @@ def add_pie_chart(
 ) -> PieChart:
     """Create a pie chart and anchor it on the worksheet."""
     chart = create_pie_chart(title, data_ref, categories_ref, **kwargs)
+    ws.add_chart(chart, anchor)
+    return chart
+
+
+def add_doughnut_chart(
+    ws: Worksheet,
+    title: str,
+    data_ref: Reference,
+    categories_ref: Reference,
+    anchor: str = "I11",
+    **kwargs,
+) -> DoughnutChart:
+    """Create a doughnut chart and anchor it on the worksheet."""
+    chart = create_doughnut_chart(title, data_ref, categories_ref, **kwargs)
+    ws.add_chart(chart, anchor)
+    return chart
+
+
+def add_clustered_bar_chart(
+    ws: Worksheet,
+    title: str,
+    data_refs: list[Reference],
+    categories_ref: Reference,
+    anchor: str = "I11",
+    **kwargs,
+) -> BarChart:
+    """Create a clustered bar chart and anchor it on the worksheet."""
+    chart = create_clustered_bar_chart(title, data_refs, categories_ref, **kwargs)
     ws.add_chart(chart, anchor)
     return chart
 

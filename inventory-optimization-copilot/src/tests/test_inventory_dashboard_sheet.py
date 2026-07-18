@@ -1,59 +1,60 @@
 """Tests for Inventory Dashboard sheet builder."""
 
 from openpyxl import Workbook
+from openpyxl.utils import column_index_from_string
 
 from src.data_generation.generate_inventory import generate_inventory_data
 from src.main import generate_all_data
+from src.sheets.dashboard_layout import (
+    CHART_AREA_START_COL,
+    CHART_HEIGHT_CM,
+    CHART_WIDTH_CM,
+    DASHBOARD_CANVAS_COLS,
+    DASHBOARD_SECTIONS,
+)
 from src.sheets.inventory_dashboard_sheet import build
 
 
 def test_inventory_dashboard_kpi_sections():
-    """Dashboard should render four KPI sections."""
+    """Dashboard should render KPI cards in the header band."""
     wb = Workbook()
     ws = wb.active
     data = generate_all_data()
     build(ws, {"data": data})
 
-    values = [
-        ws.cell(row=r, column=1).value
-        for r in range(1, 24)
-        if ws.cell(row=r, column=1).value
-    ]
-    combined = " ".join(str(v) for v in values)
-    assert "Inventory Health" in combined
-    assert "Classification & Control" in combined
-    assert "Planning & Service" in combined
-    assert "Procurement & Network" in combined
+    assert ws.cell(row=1, column=1).value.startswith("Inventory Dashboard")
     assert ws.cell(row=3, column=1).value == "Total Inventory Value"
     assert str(ws.cell(row=4, column=1).value).startswith("=SUM(")
+    assert ws.freeze_panes == "A9"
 
 
 def test_inventory_dashboard_summary_tables_and_charts():
-    """Dashboard should include chart data tables and at least ten charts."""
+    """Dashboard should include ten fixed sections with side-by-side charts."""
     wb = Workbook()
     ws = wb.active
     data = generate_all_data()
     build(ws, {"data": data})
 
-    values = [
-        ws.cell(row=r, column=1).value
-        for r in range(1, ws.max_row + 1)
-        if ws.cell(row=r, column=1).value
-    ]
-    combined = " ".join(str(v) for v in values)
-    for label in (
-        "Inventory Value by Location",
-        "ABC Annual Usage Value",
-        "Replenishment Status",
-        "Fill Rate by Location",
-        "Vendor Risk Distribution",
-        "Transfer Net Benefit",
-        "Recommended Action Summary",
-    ):
-        assert label in combined
-    assert len(ws._charts) >= 10
+    for section in DASHBOARD_SECTIONS:
+        assert ws.cell(row=section.start_row, column=1).value == section.title
+
+    assert len(ws._charts) == 10
+    for chart in ws._charts:
+        assert CHART_HEIGHT_CM - 1 <= chart.height <= CHART_HEIGHT_CM + 1
+        assert CHART_WIDTH_CM - 1 <= chart.width <= CHART_WIDTH_CM + 1
+
+    anchor_cols = []
+    for chart in ws._charts:
+        anchor = chart.anchor
+        if hasattr(anchor, "_from"):
+            anchor_cols.append(anchor._from.col + 1)
+        else:
+            col_letter = "".join(ch for ch in str(anchor) if ch.isalpha())
+            anchor_cols.append(column_index_from_string(col_letter))
+    assert all(col >= CHART_AREA_START_COL for col in anchor_cols)
+
     table_names = {t.displayName for t in ws.tables.values()}
-    assert any(name.startswith("Dashboard") for name in table_names)
+    assert sum(1 for name in table_names if name.startswith("Dashboard")) == 10
 
 
 def test_inventory_dashboard_readme_link():
@@ -61,7 +62,7 @@ def test_inventory_dashboard_readme_link():
     wb = Workbook()
     ws = wb.active
     build(ws, {"data": generate_all_data()})
-    link_cell = ws.cell(row=1, column=10)
+    link_cell = ws.cell(row=1, column=DASHBOARD_CANVAS_COLS)
     assert link_cell.hyperlink is not None
     assert "README" in link_cell.hyperlink.target
 
