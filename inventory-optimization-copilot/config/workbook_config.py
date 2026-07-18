@@ -53,6 +53,35 @@ CYCLE_COUNT_FREQUENCY = {
 }
 
 # ---------------------------------------------------------------------------
+# Service level targets and Z-scores (Prompt 05)
+# ---------------------------------------------------------------------------
+
+SERVICE_LEVEL_TARGETS = {
+    "A": 0.99,
+    "B": 0.95,
+    "C": 0.90,
+}
+
+SERVICE_LEVEL_Z_SCORES = {
+    "A": 2.326,
+    "B": 1.645,
+    "C": 1.282,
+}
+
+GLOBAL_LEAD_TIME_FALLBACK_DAYS = 14
+ORDERING_COST = 75.0
+HOLDING_COST_PCT = 0.25
+MIN_LEAD_TIME_SAMPLES_ADVANCED = 5
+MIN_WEEKS_FOR_ADVANCED_SAFETY_STOCK = 8
+
+OPEN_PO_STATUSES = [
+    "Approved",
+    "Open",
+    "Partially Received",
+    "Late",
+]
+
+# ---------------------------------------------------------------------------
 # Required sheet order (Excel limit: 31 characters per name)
 # Prompts 04–09 will add: Inventory Classification, Cycle Count Plan,
 # Replenishment Planning, Demand Forecast, Service Level Analysis,
@@ -66,6 +95,7 @@ SHEET_ORDER = [
     "Inventory Classification",
     "Aged Excess Analysis",
     "Cycle Count Plan",
+    "Replenishment Planning",
     "Markdown Planner",
     "Transfer Planner",
     "Management Summary",

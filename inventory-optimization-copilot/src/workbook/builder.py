@@ -26,6 +26,7 @@ from src.sheets import (
     markdown_planner_sheet,
     master_inventory_sheet,
     readme_sheet,
+    replenishment_planning_sheet,
     transfer_planner_sheet,
 )
 
@@ -38,6 +39,7 @@ SHEET_BUILDERS = {
     "Inventory Classification": inventory_classification_sheet.build,
     "Aged Excess Analysis": aged_excess_sheet.build,
     "Cycle Count Plan": cycle_count_plan_sheet.build,
+    "Replenishment Planning": replenishment_planning_sheet.build,
     "Markdown Planner": markdown_planner_sheet.build,
     "Transfer Planner": transfer_planner_sheet.build,
     "Management Summary": management_summary_sheet.build,
