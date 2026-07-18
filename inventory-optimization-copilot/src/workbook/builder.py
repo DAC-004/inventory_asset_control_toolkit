@@ -28,8 +28,10 @@ from src.sheets import (
     master_inventory_sheet,
     readme_sheet,
     replenishment_planning_sheet,
+    purchase_order_tracker_sheet,
     service_level_analysis_sheet,
     transfer_planner_sheet,
+    vendor_scorecards_sheet,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,8 @@ SHEET_BUILDERS = {
     "Replenishment Planning": replenishment_planning_sheet.build,
     "Demand Forecast": demand_forecast_sheet.build,
     "Service Level Analysis": service_level_analysis_sheet.build,
+    "Purchase Order Tracker": purchase_order_tracker_sheet.build,
+    "Vendor Scorecards": vendor_scorecards_sheet.build,
     "Markdown Planner": markdown_planner_sheet.build,
     "Transfer Planner": transfer_planner_sheet.build,
     "Management Summary": management_summary_sheet.build,

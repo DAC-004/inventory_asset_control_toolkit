@@ -99,6 +99,32 @@ SERVICE_LEVEL_WATCH_GAP = 0.02
 SERVICE_LEVEL_BELOW_TARGET_GAP = 0.05
 
 # ---------------------------------------------------------------------------
+# Vendor scorecard weights (Prompt 07) — must sum to 100%
+# ---------------------------------------------------------------------------
+
+VENDOR_SCORE_WEIGHTS = {
+    "otif": 0.35,
+    "quality": 0.20,
+    "lead_time_consistency": 0.15,
+    "price_performance": 0.15,
+    "responsiveness": 0.10,
+    "administrative_compliance": 0.05,
+}
+
+MIN_VENDOR_PO_SAMPLES = 3
+VENDOR_RISK_PREFERRED_MIN = 90
+VENDOR_RISK_APPROVED_MIN = 75
+VENDOR_RISK_WATCH_MIN = 60
+
+PO_OPEN_SUPPLY_STATUSES = [
+    "Approved",
+    "Open",
+    "Partially Received",
+    "Late",
+    "Quality Hold",
+]
+
+# ---------------------------------------------------------------------------
 # Required sheet order (Excel limit: 31 characters per name)
 # Prompts 04–09 will add: Inventory Classification, Cycle Count Plan,
 # Replenishment Planning, Demand Forecast, Service Level Analysis,
@@ -115,6 +141,8 @@ SHEET_ORDER = [
     "Replenishment Planning",
     "Demand Forecast",
     "Service Level Analysis",
+    "Purchase Order Tracker",
+    "Vendor Scorecards",
     "Markdown Planner",
     "Transfer Planner",
     "Management Summary",

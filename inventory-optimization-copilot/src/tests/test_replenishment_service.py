@@ -13,12 +13,12 @@ from config.workbook_config import (
     SERVICE_LEVEL_Z_SCORES,
 )
 from src.main import generate_all_data
+from src.services.purchase_order_service import compute_valid_open_supply
 from src.services.replenishment_service import (
     REPLENISHMENT_HEADERS,
     LeadTimeStats,
     _build_lead_time_records,
     _compute_eoq,
-    _compute_open_po_quantities,
     _round_to_case_pack,
     _safety_stock,
     build_replenishment_dataframe,
@@ -165,9 +165,23 @@ def test_open_po_no_double_counting():
             },
         ]
     )
-    receipts = pd.DataFrame([{"po_line_id": "POL-2", "accepted_quantity": 20}])
-    open_qty = _compute_open_po_quantities(pos, receipts)
-    total = int(open_qty.iloc[0]["open_po_quantity"])
+    receipts = pd.DataFrame(
+        [
+            {
+                "po_line_id": "POL-2",
+                "receipt_date": date(2026, 1, 15),
+                "received_quantity": 20,
+                "accepted_quantity": 20,
+                "rejected_quantity": 0,
+                "receipt_status": "Partial",
+                "quality_issue": "",
+            }
+        ]
+    )
+    open_qty = compute_valid_open_supply(
+        {"purchase_orders": pos, "purchase_order_receipts": receipts}
+    )
+    total = int(open_qty.iloc[0]["valid_open_quantity"]) if not open_qty.empty else 0
     assert total == 130
 
 

@@ -15,13 +15,14 @@ from config.workbook_config import (
     HOLDING_COST_PCT,
     MIN_LEAD_TIME_SAMPLES_ADVANCED,
     MIN_WEEKS_FOR_ADVANCED_SAFETY_STOCK,
-    OPEN_PO_STATUSES,
     ORDERING_COST,
     SERVICE_LEVEL_TARGETS,
     SERVICE_LEVEL_Z_SCORES,
 )
 from src.services.classification_service import build_classification_dataframe
 from src.services.forecast_service import build_forecast_lookup, resolve_planning_demand
+from src.services.purchase_order_service import compute_valid_open_supply
+from src.services.vendor_scorecard_service import build_vendor_risk_lookup
 
 REPLENISHMENT_HEADERS = [
     "SKU",
@@ -30,6 +31,7 @@ REPLENISHMENT_HEADERS = [
     "Product Name",
     "Category",
     "Supplier ID",
+    "Supplier Risk Class",
     "ABC Class",
     "Quantity On Hand",
     "Quantity Allocated",
@@ -357,46 +359,6 @@ def _round_to_case_pack(quantity: float, case_pack: int) -> int:
     return int(math.ceil(quantity / case_pack) * case_pack)
 
 
-def _compute_open_po_quantities(
-    purchase_orders: pd.DataFrame, receipts: pd.DataFrame
-) -> pd.DataFrame:
-    """Remaining open quantity by PO line; aggregate at SKU-location."""
-    if purchase_orders.empty:
-        return pd.DataFrame(
-            columns=["sku", "location_id", "open_po_quantity", "has_late_po"]
-        )
-
-    received = (
-        receipts.groupby("po_line_id")["accepted_quantity"].sum()
-        if not receipts.empty
-        else pd.Series(dtype=float)
-    )
-    open_lines = purchase_orders[
-        purchase_orders["po_status"].isin(OPEN_PO_STATUSES)
-    ].copy()
-    open_lines["received_qty"] = open_lines["po_line_id"].map(received).fillna(0)
-    open_lines["remaining_qty"] = (
-        open_lines["ordered_quantity"] - open_lines["received_qty"]
-    ).clip(lower=0)
-    open_lines = open_lines[open_lines["remaining_qty"] > 0]
-
-    if open_lines.empty:
-        return pd.DataFrame(
-            columns=["sku", "location_id", "open_po_quantity", "has_late_po"]
-        )
-
-    agg = (
-        open_lines.groupby(["sku", "location_id"])
-        .agg(
-            open_po_quantity=("remaining_qty", "sum"),
-            has_late_po=("po_status", lambda s: bool((s == "Late").any())),
-        )
-        .reset_index()
-    )
-    agg["open_po_quantity"] = agg["open_po_quantity"].astype(int)
-    return agg
-
-
 def _determine_status_and_quantity(
     *,
     projected_available: float,
@@ -411,6 +373,8 @@ def _determine_status_and_quantity(
     storage_capacity: int,
     open_po_qty: int,
     has_late_po: bool,
+    has_quality_hold: bool,
+    supplier_risk: str,
     unit_cost: float,
     supplier_mov: float,
 ) -> tuple[int, str, str]:
@@ -424,6 +388,19 @@ def _determine_status_and_quantity(
 
     if projected_available > max_stock:
         return 0, "Overstocked", "Projected available exceeds max stock"
+
+    if has_quality_hold:
+        notes.append("Open PO on quality hold excluded from valid supply")
+
+    if supplier_risk in {"High Risk", "Watch"}:
+        notes.append(f"Supplier risk class: {supplier_risk}")
+
+    if supplier_risk == "High Risk" and projected_available <= reorder_point:
+        return (
+            0,
+            "Supplier Constraint",
+            f"High-risk supplier ({supplier_risk}); review before ordering",
+        )
 
     if has_late_po and projected_available <= reorder_point:
         return (
@@ -521,13 +498,15 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
         if not suppliers.empty
         else {}
     )
-    open_po = _compute_open_po_quantities(purchase_orders, receipts)
+    open_po = compute_valid_open_supply(data)
+    vendor_risk = build_vendor_risk_lookup(data)
     open_po_map: dict[tuple[str, str], dict[str, Any]] = {}
     if not open_po.empty:
         for _, row in open_po.iterrows():
             open_po_map[(str(row["sku"]), str(row["location_id"]))] = {
-                "open_po_quantity": int(row["open_po_quantity"]),
+                "open_po_quantity": int(row["valid_open_quantity"]),
                 "has_late_po": bool(row["has_late_po"]),
+                "has_quality_hold": bool(row["has_quality_hold"]),
             }
 
     forecast_lookup = build_forecast_lookup(data)
@@ -570,6 +549,8 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
         open_info = open_po_map.get((sku, loc_id), {})
         open_po_qty = int(open_info.get("open_po_quantity", 0))
         has_late_po = bool(open_info.get("has_late_po", False))
+        has_quality_hold = bool(open_info.get("has_quality_hold", False))
+        supplier_risk = vendor_risk.get(supplier_id, "Data Insufficient")
 
         projected = qoh + open_po_qty - allocated - backorder
         expected_ltd = round(planning_daily * planning_lt, 2)
@@ -607,6 +588,8 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
             storage_capacity=storage_capacity,
             open_po_qty=open_po_qty,
             has_late_po=has_late_po,
+            has_quality_hold=has_quality_hold,
+            supplier_risk=supplier_risk,
             unit_cost=unit_cost,
             supplier_mov=float(supplier_mov.get(supplier_id, 0)),
         )
@@ -622,6 +605,7 @@ def build_replenishment_dataframe(data: dict[str, pd.DataFrame]) -> pd.DataFrame
                 "Product Name": inv["product_name"],
                 "Category": inv["category"],
                 "Supplier ID": supplier_id,
+                "Supplier Risk Class": supplier_risk,
                 "ABC Class": abc_class,
                 "Quantity On Hand": qoh,
                 "Quantity Allocated": allocated,
