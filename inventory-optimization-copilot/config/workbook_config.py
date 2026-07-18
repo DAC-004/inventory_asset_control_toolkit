@@ -139,12 +139,12 @@ SHEET_ORDER = [
     "Aged Excess Analysis",
     "Cycle Count Plan",
     "Replenishment Planning",
+    "Transfer Planner",
+    "Markdown Planner",
     "Demand Forecast",
     "Service Level Analysis",
     "Purchase Order Tracker",
     "Vendor Scorecards",
-    "Markdown Planner",
-    "Transfer Planner",
     "Management Summary",
 ]
 

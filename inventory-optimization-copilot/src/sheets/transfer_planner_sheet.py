@@ -21,6 +21,7 @@ from src.workbook.styles import (
     freeze_panes,
 )
 from src.workbook.utils import (
+    add_internal_sheet_link,
     autosize_columns,
     create_excel_table,
     format_currency_columns,
@@ -69,7 +70,7 @@ ACTION_CF_MAP = {
 def _write_title(ws: Worksheet, record_count: int) -> None:
     """Render sheet title."""
     ws.merge_cells(
-        start_row=TITLE_ROW, start_column=1, end_row=TITLE_ROW, end_column=COL_COUNT
+        start_row=TITLE_ROW, start_column=1, end_row=TITLE_ROW, end_column=COL_COUNT - 1
     )
     cell = ws.cell(
         row=TITLE_ROW,
@@ -85,6 +86,7 @@ def _write_title(ws: Worksheet, record_count: int) -> None:
     cell.fill = sc.HEADER_FILL
     cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
     ws.row_dimensions[TITLE_ROW].height = 28
+    add_internal_sheet_link(ws, TITLE_ROW, COL_COUNT, "README", "← README")
 
 
 def _write_headers(ws: Worksheet) -> None:

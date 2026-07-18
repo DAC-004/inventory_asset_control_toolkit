@@ -5,8 +5,34 @@ Workbook utility helpers: column sizing, tables, filters, formats, and print lay
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.styles import Font
 
 from config import style_config as sc
+
+# ---------------------------------------------------------------------------
+# Navigation links
+# ---------------------------------------------------------------------------
+
+
+def add_internal_sheet_link(
+    ws: Worksheet,
+    row: int,
+    col: int,
+    target_sheet: str,
+    display: str | None = None,
+) -> None:
+    """Add an in-workbook hyperlink to another sheet."""
+    label = display or target_sheet
+    cell = ws.cell(row=row, column=col, value=label)
+    cell.hyperlink = f"#'{target_sheet}'!A1"
+    cell.font = Font(
+        name=sc.FONTS["default_name"],
+        color=sc.COLORS["dark_blue"],
+        underline="single",
+        size=sc.FONTS["body_size"],
+    )
+    cell.alignment = sc.LEFT_ALIGN
+
 
 # ---------------------------------------------------------------------------
 # Column sizing

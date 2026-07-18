@@ -5,7 +5,6 @@ from __future__ import annotations
 from config.workbook_config import INVENTORY_THRESHOLDS
 from src.domain.constants import (
     COL_AGE_DAYS,
-    COL_GROSS_MARGIN,
     COL_RECOMMENDED_ACTION,
     COL_STATUS,
     COL_TOTAL_VALUE,
@@ -15,7 +14,6 @@ from src.domain.constants import (
     TRANSFER_ACTIONS,
 )
 from src.workbook.formulas import (
-    average_range,
     count_if_range,
     sum_if_numeric,
     sum_if_range,
@@ -71,48 +69,16 @@ def dashboard_kpi_definitions(start: int, end: int) -> list[tuple[str, str, str]
             "currency",
         ),
         (
-            "Slow-Moving SKU Count",
-            count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Slow-Moving"),
-            "integer",
-        ),
-        (
             "Obsolete SKU Count",
             count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Obsolete"),
             "integer",
         ),
         (
-            "Transfer Candidate Count",
-            "="
-            + "+".join(
-                count_if_range(
-                    MASTER_SHEET, COL_RECOMMENDED_ACTION, start, end, action
-                ).lstrip("=")
-                for action in TRANSFER_ACTIONS
-            ),
-            "integer",
-        ),
-        (
-            "Markdown Candidate Count",
-            "="
-            + "+".join(
-                count_if_range(
-                    MASTER_SHEET, COL_RECOMMENDED_ACTION, start, end, action
-                ).lstrip("=")
-                for action in MARKDOWN_ACTIONS
-            ),
-            "integer",
-        ),
-        (
-            "Stockout Risk Count",
+            "Stockout Risk SKU Count",
             count_if_range(MASTER_SHEET, COL_STATUS, start, end, "Stockout Risk"),
             "integer",
         ),
         ("Estimated Recovery Value", recovery_value_formula(start, end), "currency"),
-        (
-            "Average Gross Margin %",
-            average_range(MASTER_SHEET, COL_GROSS_MARGIN, start, end),
-            "percentage",
-        ),
     ]
 
 

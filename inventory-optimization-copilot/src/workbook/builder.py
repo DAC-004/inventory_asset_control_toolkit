@@ -68,6 +68,7 @@ def create_workbook() -> Workbook:
     wb.properties.title = WORKBOOK_TITLE
     wb.properties.creator = AUTHOR
     wb.properties.subject = "Inventory Optimization"
+    wb.calculation.fullCalcOnLoad = True
     return wb
 
 
