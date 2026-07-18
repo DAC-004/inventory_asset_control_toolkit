@@ -36,15 +36,33 @@ DATA_START_ROW = 3
 COL_COUNT = len(HEADERS)
 TABLE_NAME = "TransferPlannerTable"
 
-COL_INTEGER = ["E", "F", "G", "H", "I"]
-COL_CURRENCY = ["J", "K", "L", "M"]
-COL_NET_BENEFIT = "M"
-COL_RECOMMENDATION = "N"
+COL_INTEGER = [
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "R",
+    "S",
+    "AC",
+]
+COL_CURRENCY = ["T", "U", "V", "W", "X", "Y"]
+COL_NET_BENEFIT = "X"
+COL_ACTION = "Z"
 
-RECOMMENDATION_CF_MAP = {
-    "Transfer Recommended": "healthy",
-    "Review Transfer": "watch",
-    "Do Not Transfer": "critical",
+ACTION_CF_MAP = {
+    "Transfer": "healthy",
+    "Transfer Then Purchase": "watch",
+    "Expedite Existing PO": "watch",
+    "Purchase": "slow_moving",
+    "Monitor": "watch",
+    "No Action": "critical",
+    "Data Review Required": "critical",
 }
 
 
@@ -56,7 +74,7 @@ def _write_title(ws: Worksheet, record_count: int) -> None:
     cell = ws.cell(
         row=TITLE_ROW,
         column=1,
-        value=f"Transfer Planner — {record_count:,} Recommended Transfers",
+        value=f"Transfer Planner — {record_count:,} Network Transfer Actions",
     )
     cell.font = Font(
         name=sc.FONTS["default_name"],
@@ -131,27 +149,25 @@ def _apply_net_benefit_formatting(ws: Worksheet, last_row: int) -> None:
     )
 
 
-def _apply_recommendation_formatting(ws: Worksheet, last_row: int) -> None:
-    """Apply disposition-style formatting to Recommendation column."""
+def _apply_action_formatting(ws: Worksheet, last_row: int) -> None:
+    """Apply disposition-style formatting to Action column."""
     if last_row < DATA_START_ROW:
         return
 
-    recommendation_range = (
-        f"{COL_RECOMMENDATION}{DATA_START_ROW}:{COL_RECOMMENDATION}{last_row}"
-    )
+    action_range = f"{COL_ACTION}{DATA_START_ROW}:{COL_ACTION}{last_row}"
     apply_risk_conditional_formatting(
         ws,
-        recommendation_range,
-        COL_RECOMMENDATION,
+        action_range,
+        COL_ACTION,
         DATA_START_ROW,
-        RECOMMENDATION_CF_MAP,
+        ACTION_CF_MAP,
     )
 
 
 def build(ws: Worksheet, context: dict[str, Any]) -> None:
-    """Build the Transfer Planner sheet from inventory data."""
-    df: pd.DataFrame = context["data"].get("inventory", pd.DataFrame())
-    transfers = build_transfer_dataframe(df)
+    """Build the Transfer Planner sheet from generated workbook data."""
+    data = context.get("data", {})
+    transfers = build_transfer_dataframe(data)
 
     _write_title(ws, len(transfers))
     _write_headers(ws)
@@ -160,11 +176,12 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
     _apply_column_formats(ws, last_row)
     _create_transfer_table(ws, last_row)
     _apply_net_benefit_formatting(ws, last_row)
-    _apply_recommendation_formatting(ws, last_row)
+    _apply_action_formatting(ws, last_row)
 
     freeze_panes(ws, row=DATA_START_ROW, col=1)
     autosize_columns(ws, min_width=10, max_width=36)
     ws.column_dimensions["B"].width = min(ws.column_dimensions["B"].width, 30)
+    ws.column_dimensions["C"].width = min(ws.column_dimensions["C"].width, 32)
 
     ws.sheet_view.showGridLines = False
     set_landscape_print(

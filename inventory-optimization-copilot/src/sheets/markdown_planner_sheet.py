@@ -36,13 +36,16 @@ DATA_START_ROW = 3
 COL_COUNT = len(HEADERS)
 TABLE_NAME = "MarkdownPlannerTable"
 
-COL_INTEGER = ["D", "H"]
-COL_CURRENCY = ["E", "F", "K", "M", "N"]
-COL_PERCENTAGE = ["G", "J", "L"]
-COL_DISPOSITION = "O"
+COL_INTEGER = ["E", "I"]
+COL_CURRENCY = ["F", "G", "N", "R", "S"]
+COL_PERCENTAGE = ["H", "K", "O", "Q"]
+COL_DISPOSITION = "U"
 
 DISPOSITION_CF_MAP = {
+    "Dispose": "critical",
+    "Discontinue": "critical",
     "Liquidate": "critical",
+    "30% Markdown": "slow_moving",
     "20% Markdown": "slow_moving",
     "10% Markdown": "watch",
     "Transfer First": "watch",
@@ -126,9 +129,9 @@ def _apply_disposition_formatting(ws: Worksheet, last_row: int) -> None:
 
 
 def build(ws: Worksheet, context: dict[str, Any]) -> None:
-    """Build the Markdown Planner sheet from inventory data."""
-    df: pd.DataFrame = context["data"].get("inventory", pd.DataFrame())
-    planner = build_markdown_dataframe(df)
+    """Build the Markdown Planner sheet from generated workbook data."""
+    data = context.get("data", {})
+    planner = build_markdown_dataframe(data)
 
     _write_title(ws, len(planner))
     _write_headers(ws)

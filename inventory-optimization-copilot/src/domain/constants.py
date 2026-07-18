@@ -38,11 +38,14 @@ ANALYST_NOTES = {
 }
 
 DISPOSITION_SORT_ORDER = {
-    "Liquidate": 0,
-    "20% Markdown": 1,
-    "10% Markdown": 2,
-    "Transfer First": 3,
-    "Hold": 4,
+    "Dispose": 0,
+    "Discontinue": 1,
+    "Liquidate": 2,
+    "30% Markdown": 3,
+    "20% Markdown": 4,
+    "10% Markdown": 5,
+    "Transfer First": 6,
+    "Hold": 7,
 }
 
 # Master Inventory column letters (for Excel formula KPIs)

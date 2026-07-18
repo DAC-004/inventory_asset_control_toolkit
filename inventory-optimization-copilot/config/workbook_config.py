@@ -230,6 +230,20 @@ TRANSFER_SETTINGS = {
 }
 
 # ---------------------------------------------------------------------------
+# Network transfer settings (Prompt 08)
+# ---------------------------------------------------------------------------
+
+TRANSFER_MAX_LEAD_TIME_DAYS = 7
+TRANSFER_SOURCE_RISK_RATE = 0.05
+TRANSFER_PURCHASE_MARKUP = 0.05
+TRANSFER_ORDERING_COST = 75.0
+TRANSFER_MIN_NET_BENEFIT = 0.0
+TRANSFER_MARGIN_RATE = 0.35
+TRANSFER_EMERGENCY_BACKORDER_OVERRIDE = True
+
+MARKDOWN_CARRYING_COST_PCT = 0.25
+
+# ---------------------------------------------------------------------------
 # Inventory / action label constants
 # ---------------------------------------------------------------------------
 
