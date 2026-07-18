@@ -11,6 +11,8 @@ env/
 dist/*.egg
 .pytest_cache/
 pytest-cache-files-*/
+.coverage
+.coverage.*
 .mypy_cache/
 .ruff_cache/
 
