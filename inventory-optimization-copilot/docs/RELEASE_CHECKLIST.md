@@ -1,6 +1,6 @@
 # Release Checklist — Inventory Optimization Copilot v2.0.0
 
-Pre-release verification for Phase 1 builds. Run from `inventory-optimization-copilot/`.
+Pre-release verification for v2.0.0 builds. Run from `inventory-optimization-copilot/`.
 
 ---
 
@@ -72,9 +72,16 @@ assert wb.sheetnames == [
     "README",
     "Master Inventory",
     "Inventory Dashboard",
+    "Inventory Classification",
     "Aged Excess Analysis",
-    "Markdown Planner",
+    "Cycle Count Plan",
+    "Replenishment Planning",
     "Transfer Planner",
+    "Markdown Planner",
+    "Demand Forecast",
+    "Service Level Analysis",
+    "Purchase Order Tracker",
+    "Vendor Scorecards",
     "Management Summary",
 ]
 wb.close()

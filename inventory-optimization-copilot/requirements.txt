@@ -4,5 +4,7 @@ numpy
 faker
 python-dateutil
 pytest
+pytest-cov
 black
 ruff
+mypy

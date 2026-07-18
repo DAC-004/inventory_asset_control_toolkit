@@ -17,14 +17,16 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest pytest-cov black ruff mypy
+        run: pip install -r requirements.txt
 
       - name: Compile
         run: python -m compileall src config
@@ -38,8 +40,37 @@ jobs:
       - name: Mypy
         run: mypy src config
 
-      - name: Pytest
-        run: pytest --cov=src --cov-report=term-missing -q
+      - name: Pytest with coverage
+        run: |
+          pytest --cov=src/services --cov=src/domain/validation \
+            --cov-report=term-missing --cov-fail-under=85 -q
 
       - name: Build workbook
         run: python src/main.py
+
+      - name: Validate workbook
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from config.workbook_config import OUTPUT_FILENAME, SHEET_ORDER, WORKBOOK_PATH
+          from openpyxl import load_workbook
+          from src.workbook.validator import validate_workbook_file
+
+          validate_workbook_file(WORKBOOK_PATH)
+          wb = load_workbook(WORKBOOK_PATH, read_only=True)
+          try:
+              assert wb.sheetnames == SHEET_ORDER
+              assert len(wb.sheetnames) == 14
+              assert OUTPUT_FILENAME == "Inventory_Optimization_Copilot.xlsx"
+          finally:
+              wb.close()
+          print("Workbook validation passed")
+          PY
+
+      - name: Upload workbook artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Inventory_Optimization_Copilot
+          path: inventory-optimization-copilot/dist/Inventory_Optimization_Copilot.xlsx
+          if-no-files-found: error

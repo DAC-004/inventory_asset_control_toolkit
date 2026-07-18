@@ -1,7 +1,6 @@
 """Tests for main.py build entry point."""
 
 from pathlib import Path
-from unittest.mock import patch
 
 from config.workbook_config import CSV_FILES
 from src.main import ensure_output_directories, main
@@ -31,8 +30,7 @@ def test_main_returns_success_exit_code(tmp_path: Path, monkeypatch):
     monkeypatch.setattr("src.main.WORKBOOK_PATH", workbook)
     monkeypatch.setattr("src.data_generation.pipeline.DATA_GENERATED_DIR", generated)
 
-    with patch("src.main._log"):
-        assert main() == 0
+    assert main() == 0
 
     assert workbook.exists()
     for filename in CSV_FILES.values():

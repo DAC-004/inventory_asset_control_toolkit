@@ -41,7 +41,7 @@
 
 - Python generates the entire workbook deterministically (seed 42, as-of 2026-07-01).
 - Business rules live in services; sheets are presentation.
-- Phase 1 covers seven tabs; seven planning tabs are on the roadmap (prompts 04–09).
+- v2.0.0 delivers all 14 inventory planning tabs with deterministic build (seed 42, as-of 2026-07-01).
 
 ---
 

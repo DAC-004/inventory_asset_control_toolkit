@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 
 from src.domain.schemas import ALL_DATASET_COLUMNS
+from src.exceptions import BuildProcessError
 
 
 @dataclass(frozen=True)
@@ -25,7 +26,7 @@ class ValidationErrorDetail:
         )
 
 
-class DatasetValidationError(Exception):
+class DatasetValidationError(BuildProcessError):
     """Raised when one or more dataset validation rules fail."""
 
     def __init__(self, errors: list[ValidationErrorDetail]) -> None:

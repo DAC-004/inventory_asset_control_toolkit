@@ -60,28 +60,26 @@ All sample data is **fictional**, reproducible, and safe for portfolio and inter
 
 ### Final tab order (target contract)
 
-| # | Sheet | Phase | Prompt |
-|---|-------|-------|--------|
-| 1 | README | **Phase 1 ✅** | 01 |
-| 2 | Master Inventory | **Phase 1 ✅** | 01 |
-| 3 | Inventory Dashboard | **Phase 1 ✅** | 01 |
-| 4 | Inventory Classification | Planned | 04 |
-| 5 | Aged Excess Analysis | **Phase 1 ✅** | 01 |
-| 6 | Cycle Count Plan | Planned | 05 |
-| 7 | Replenishment Planning | Planned | 06 |
-| 8 | Transfer Planner | **Phase 1 ✅** | 01 |
-| 9 | Markdown Planner | **Phase 1 ✅** | 01 |
-| 10 | Demand Forecast | Planned | 07 |
-| 11 | Service Level Analysis | Planned | 08 |
-| 12 | Purchase Order Tracker | Planned | 08 |
-| 13 | Vendor Scorecards | Planned | 09 |
-| 14 | Management Summary | **Phase 1 ✅** | 01 |
+| # | Sheet | Status | Prompt |
+|---|-------|--------|--------|
+| 1 | README | **v2.0.0 ✅** | 01 |
+| 2 | Master Inventory | **v2.0.0 ✅** | 01 |
+| 3 | Inventory Dashboard | **v2.0.0 ✅** | 09 |
+| 4 | Inventory Classification | **v2.0.0 ✅** | 04 |
+| 5 | Aged Excess Analysis | **v2.0.0 ✅** | 01 |
+| 6 | Cycle Count Plan | **v2.0.0 ✅** | 04 |
+| 7 | Replenishment Planning | **v2.0.0 ✅** | 05 |
+| 8 | Transfer Planner | **v2.0.0 ✅** | 08 |
+| 9 | Markdown Planner | **v2.0.0 ✅** | 08 |
+| 10 | Demand Forecast | **v2.0.0 ✅** | 06 |
+| 11 | Service Level Analysis | **v2.0.0 ✅** | 06 |
+| 12 | Purchase Order Tracker | **v2.0.0 ✅** | 07 |
+| 13 | Vendor Scorecards | **v2.0.0 ✅** | 07 |
+| 14 | Management Summary | **v2.0.0 ✅** | 09 |
 
-Phase 1 ships **7 sheets** in this order (Classification and intermediate planning tabs deferred):
+v2.0.0 ships **14 sheets** in this order (see `config/workbook_config.py`):
 
-README → Master Inventory → Inventory Dashboard → Aged Excess Analysis → Markdown Planner → Transfer Planner → Management Summary.
-
-Prompts 04–09 insert the seven planned tabs between Transfer Planner and Management Summary per `config/workbook_config.py`.
+README → Master Inventory → Inventory Dashboard → Inventory Classification → Aged Excess Analysis → Cycle Count Plan → Replenishment Planning → Transfer Planner → Markdown Planner → Demand Forecast → Service Level Analysis → Purchase Order Tracker → Vendor Scorecards → Management Summary.
 
 ---
 

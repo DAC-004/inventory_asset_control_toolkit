@@ -11,7 +11,9 @@ Generates:
 
 from __future__ import annotations
 
+import logging
 import sys
+import time
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -19,6 +21,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.workbook_config import (  # noqa: E402
+    AS_OF_DATE,
     CSV_FILES,
     DATA_GENERATED_DIR,
     DIST_DIR,
@@ -33,12 +36,20 @@ from src.data_generation.pipeline import (  # noqa: E402
     generate_all_datasets,
     save_all_datasets,
 )
+from src.exceptions import BuildProcessError  # noqa: E402
 from src.services.workbook_inventory import inventory_for_workbook  # noqa: E402
 from src.workbook.builder import build_workbook  # noqa: E402
+from src.workbook.validator import validate_workbook_file  # noqa: E402
+
+logger = logging.getLogger(__name__)
 
 
-def _log(message: str) -> None:
-    print(message)
+def configure_logging() -> None:
+    """Configure structured console logging for the build pipeline."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s | %(message)s",
+    )
 
 
 def ensure_output_directories() -> None:
@@ -53,15 +64,25 @@ def generate_all_data() -> dict:
     Returns:
         Dict with full datasets plus workbook-projected inventory.
     """
+    row_count = ROW_COUNTS["inventory"]["default"]
+    logger.info(
+        "Generating datasets | seed=%s as_of=%s rows=%s",
+        RANDOM_SEED,
+        AS_OF_DATE.isoformat(),
+        row_count,
+    )
+
     datasets = generate_all_datasets(
         seed=RANDOM_SEED,
-        row_count=ROW_COUNTS["inventory"]["default"],
+        row_count=row_count,
         validate=True,
     )
+    logger.info("Dataset validation passed")
+
     paths = save_all_datasets(datasets)
-    _log(f"  Saving CSV files to {DATA_GENERATED_DIR}/")
+    logger.info("Saving CSV files to %s/", DATA_GENERATED_DIR.name)
     for key, path in paths.items():
-        _log(f"    {path.name} ({len(datasets[key]):,} rows)")
+        logger.info("  %s: %s rows", path.name, f"{len(datasets[key]):,}")
 
     return {
         **datasets,
@@ -71,46 +92,62 @@ def generate_all_data() -> dict:
 
 
 def main() -> int:
+    configure_logging()
+    started = time.perf_counter()
     step = "startup"
+
     try:
-        _log(f"{WORKBOOK_TITLE} {VERSION}")
-        _log("=" * 60)
+        logger.info("Build started | %s %s", WORKBOOK_TITLE, VERSION)
+        logger.info(
+            "Configuration | seed=%s as_of=%s sheets=%s",
+            RANDOM_SEED,
+            AS_OF_DATE.isoformat(),
+            len(SHEET_ORDER),
+        )
 
         step = "creating output folders"
-        _log("Step 1/4: Creating required folders...")
+        logger.info("Step 1/4: Creating required folders...")
         ensure_output_directories()
 
         step = "generating sample data"
-        _log("Step 2/4: Generating fictional sample data...")
+        logger.info("Step 2/4: Generating fictional sample data...")
         data = generate_all_data()
 
         step = "building workbook"
-        _log("Step 3/4: Building Excel workbook...")
+        logger.info("Step 3/4: Building Excel workbook...")
         output_path = build_workbook(data, output_path=WORKBOOK_PATH)
-        _log("  Sheets: {0} tabs in required order".format(len(SHEET_ORDER)))
+        logger.info("Sheets created: %s tabs in required order", len(SHEET_ORDER))
 
-        step = "finishing"
-        _log("Step 4/4: Verifying output...")
-        if not output_path.exists():
-            raise FileNotFoundError(f"Expected workbook was not created: {output_path}")
+        step = "verifying output"
+        logger.info("Step 4/4: Verifying output...")
+        validate_workbook_file(output_path)
 
-        _log("=" * 60)
-        _log("Build completed successfully.")
-        _log(f"Workbook: {output_path.resolve()}")
-        _log(f"CSV data: {DATA_GENERATED_DIR.resolve()}/ ({len(CSV_FILES)} files)")
+        elapsed = time.perf_counter() - started
+        size_kb = output_path.stat().st_size / 1024
+        logger.info("Build completed successfully in %.1fs", elapsed)
+        logger.info("Workbook: %s (%.1f KB)", output_path.name, size_kb)
+        logger.info("CSV data: %s/ (%s files)", DATA_GENERATED_DIR.name, len(CSV_FILES))
         return 0
 
     except KeyboardInterrupt:
-        print("\nBuild cancelled by user.", file=sys.stderr)
+        logger.error("Build cancelled by user")
         return 130
 
+    except BuildProcessError as exc:
+        elapsed = time.perf_counter() - started
+        logger.error("Build failed during %s after %.1fs: %s", step, elapsed, exc)
+        return 1
+
     except Exception as exc:
-        print(f"\nBuild failed during: {step}", file=sys.stderr)
-        print(f"  {type(exc).__name__}: {exc}", file=sys.stderr)
-        print(
-            "  Check that dependencies are installed: pip install -r requirements.txt",
-            file=sys.stderr,
+        elapsed = time.perf_counter() - started
+        logger.error(
+            "Build failed during %s after %.1fs: %s: %s",
+            step,
+            elapsed,
+            type(exc).__name__,
+            exc,
         )
+        logger.error("Install dependencies with: pip install -r requirements.txt")
         return 1
 
 

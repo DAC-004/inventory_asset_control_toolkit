@@ -100,27 +100,22 @@ OUTPUT_FILENAME = "Inventory_Optimization_Copilot.xlsx"
 
 ## 5. Sheet Order
 
-### Phase 1 (implemented)
+v2.0.0 implements all **14 sheets**:
 
 1. README  
 2. Master Inventory  
 3. Inventory Dashboard  
-4. Aged Excess Analysis  
-5. Markdown Planner  
-6. Transfer Planner  
-7. Management Summary  
-
-### Final contract (14 sheets)
-
-Insert before Management Summary (prompts 04–09):
-
-- Inventory Classification  
-- Cycle Count Plan  
-- Replenishment Planning  
-- Demand Forecast  
-- Service Level Analysis  
-- Purchase Order Tracker  
-- Vendor Scorecards  
+4. Inventory Classification  
+5. Aged Excess Analysis  
+6. Cycle Count Plan  
+7. Replenishment Planning  
+8. Transfer Planner  
+9. Markdown Planner  
+10. Demand Forecast  
+11. Service Level Analysis  
+12. Purchase Order Tracker  
+13. Vendor Scorecards  
+14. Management Summary  
 
 Configured via `SHEET_ORDER` in `workbook_config.py`.
 

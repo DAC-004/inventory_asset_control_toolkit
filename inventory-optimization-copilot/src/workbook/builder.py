@@ -1,10 +1,14 @@
 """
 Workbook builder: orchestrates data loading and sheet creation.
 
-Creates Inventory_Optimization_Copilot.xlsx in dist/.
+Creates Inventory_Optimization_Copilot.xlsx in dist/ using atomic temp-file writes.
 """
 
+from __future__ import annotations
+
 import logging
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +21,7 @@ from config.workbook_config import (
     WORKBOOK_PATH,
     WORKBOOK_TITLE,
 )
+from src.exceptions import WorkbookBuildError
 from src.sheets import (
     aged_excess_sheet,
     cycle_count_plan_sheet,
@@ -33,6 +38,7 @@ from src.sheets import (
     transfer_planner_sheet,
     vendor_scorecards_sheet,
 )
+from src.workbook.validator import validate_workbook, validate_workbook_file
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +78,28 @@ def create_workbook() -> Workbook:
     return wb
 
 
+def _atomic_save(wb: Workbook, output_path: Path) -> None:
+    """Save workbook to a temp file, validate, then replace the final path."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_name = tempfile.mkstemp(
+        suffix=".xlsx", prefix=".build_", dir=output_path.parent
+    )
+    os.close(fd)
+    temp_path = Path(temp_name)
+
+    try:
+        wb.save(temp_path)
+        validate_workbook(wb)
+        validate_workbook_file(temp_path, require_standard_name=False)
+        temp_path.replace(output_path)
+    except Exception as exc:
+        temp_path.unlink(missing_ok=True)
+        raise WorkbookBuildError(
+            f"Failed to save workbook to {output_path.name}",
+            output_path=output_path,
+        ) from exc
+
+
 def build_workbook(
     data: dict[str, pd.DataFrame], output_path: Path | None = None
 ) -> Path:
@@ -86,7 +114,6 @@ def build_workbook(
         Path to the saved .xlsx file.
     """
     output_path = output_path or WORKBOOK_PATH
-    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     wb = create_workbook()
     context: dict[str, Any] = {"data": data, "workbook": wb}
@@ -94,9 +121,13 @@ def build_workbook(
     for sheet_name in SHEET_ORDER:
         builder = SHEET_BUILDERS[sheet_name]
         ws = wb.create_sheet(title=sheet_name)
-        logger.debug("Building sheet: %s", sheet_name)
+        logger.info("Creating sheet: %s", sheet_name)
         builder(ws, context)
 
-    wb.save(output_path)
-    logger.info("Workbook saved: %s", output_path)
+    _atomic_save(wb, output_path)
+    logger.info(
+        "Workbook saved: %s (%s bytes)",
+        output_path.name,
+        output_path.stat().st_size,
+    )
     return output_path

@@ -18,7 +18,13 @@ pytest-cache-files-*/
 
 # Generated outputs (keep directory via .gitkeep)
 dist/*.xlsx
+dist/.build_*.xlsx
 data/generated/*.csv
+
+# Temporary build artifacts
+*.xlsx.tmp
+.coverage
+htmlcov/
 
 # IDE / OS
 .idea/
