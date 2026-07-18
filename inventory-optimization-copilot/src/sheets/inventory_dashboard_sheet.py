@@ -10,6 +10,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from config import style_config as sc
 from src.domain.constants import MASTER_DATA_START
+from src.services.classification_service import compute_dashboard_classification_kpis
 from src.services.kpi_dashboard_service import (
     compute_action_summary,
     compute_aging_summary,
@@ -42,6 +43,12 @@ KPI_ROW_1_TITLE = 3
 KPI_ROW_1_VALUE = 4
 KPI_ROW_2_TITLE = 6
 KPI_ROW_2_VALUE = 7
+CLASS_SECTION_ROW = 8
+CLASS_KPI_ROW_1_TITLE = 9
+CLASS_KPI_ROW_1_VALUE = 10
+CLASS_KPI_ROW_2_TITLE = 11
+CLASS_KPI_ROW_2_VALUE = 12
+SUMMARY_START_ROW = 14
 
 
 def _data_end_row(record_count: int) -> int:
@@ -90,6 +97,40 @@ def _write_kpi_cards(ws: Worksheet, start: int, end: int) -> None:
             value_cell.number_format = sc.NUMBER_FORMATS["percentage"]
         else:
             value_cell.number_format = sc.NUMBER_FORMATS["integer"]
+
+
+def _write_classification_kpi_cards(ws: Worksheet, data: dict[str, Any]) -> None:
+    """Render ABC, turnover, DOH, coverage, accuracy, and overdue KPIs."""
+    apply_section_header_style(
+        ws, CLASS_SECTION_ROW, 1, "Classification & Cycle Count KPIs", span_cols=10
+    )
+    kpis = compute_dashboard_classification_kpis(data)
+    cards = [
+        ("Class A SKUs", kpis["abc_a_count"], "integer"),
+        ("Class B SKUs", kpis["abc_b_count"], "integer"),
+        ("Class C SKUs", kpis["abc_c_count"], "integer"),
+        ("Enterprise Turnover", kpis["enterprise_turnover"], "decimal"),
+        ("Avg Financial DOH", kpis["avg_financial_doh"], "decimal"),
+        ("Avg Coverage Days", kpis["avg_coverage_days"], "decimal"),
+        ("Unit Accuracy %", kpis["avg_unit_accuracy_pct"], "percentage"),
+        ("Overdue Counts", kpis["overdue_count"], "integer"),
+    ]
+    card_cols = [1, 3, 5, 7, 9]
+    for idx, (title, value, fmt) in enumerate(cards):
+        row_pair = 0 if idx < 5 else 1
+        col = card_cols[idx % 5]
+        title_row = CLASS_KPI_ROW_1_TITLE if row_pair == 0 else CLASS_KPI_ROW_2_TITLE
+        value_row = CLASS_KPI_ROW_1_VALUE if row_pair == 0 else CLASS_KPI_ROW_2_VALUE
+        apply_kpi_card_style(
+            ws, title_row, col, value_row, col, title, value, span_cols=2
+        )
+        value_cell = ws.cell(row=value_row, column=col)
+        if fmt == "percentage":
+            value_cell.number_format = sc.NUMBER_FORMATS["percentage"]
+        elif fmt == "integer":
+            value_cell.number_format = sc.NUMBER_FORMATS["integer"]
+        else:
+            value_cell.number_format = "0.00"
 
 
 def _write_table_block(
@@ -331,15 +372,16 @@ def _add_dashboard_charts(ws: Worksheet, meta: dict[str, dict[str, int]]) -> Non
 
 def build(ws: Worksheet, context: dict[str, Any]) -> None:
     """Build the Inventory Dashboard from the inventory DataFrame."""
-    df: pd.DataFrame = context["data"].get("inventory", pd.DataFrame())
+    data = context["data"]
+    df: pd.DataFrame = data.get("inventory", pd.DataFrame())
     end_row = _data_end_row(len(df))
 
     _write_title_banner(ws)
     apply_section_header_style(ws, 2, 1, "Key Performance Indicators", span_cols=10)
     _write_kpi_cards(ws, MASTER_DATA_START, end_row)
+    _write_classification_kpi_cards(ws, data)
 
-    summary_start = 9
-    table_meta = _write_summary_tables(ws, df, summary_start)
+    table_meta = _write_summary_tables(ws, df, SUMMARY_START_ROW)
     _format_summary_tables(ws, table_meta)
     _add_dashboard_charts(ws, table_meta)
 

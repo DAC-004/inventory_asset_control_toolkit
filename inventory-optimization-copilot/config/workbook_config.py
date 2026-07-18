@@ -38,6 +38,21 @@ DEMO_REFERENCE_DATE = AS_OF_DATE
 RANDOM_SEED = 42
 
 # ---------------------------------------------------------------------------
+# ABC classification thresholds (Prompt 04)
+# Cumulative usage value %: A <= ABC_A, B <= ABC_B, else C.
+# Boundary: SKU at exactly threshold pct receives that class (inclusive upper bound).
+# ---------------------------------------------------------------------------
+
+ABC_A_THRESHOLD = 0.80
+ABC_B_THRESHOLD = 0.95
+
+CYCLE_COUNT_FREQUENCY = {
+    "A": "Monthly",
+    "B": "Quarterly",
+    "C": "Semiannually",
+}
+
+# ---------------------------------------------------------------------------
 # Required sheet order (Excel limit: 31 characters per name)
 # Prompts 04–09 will add: Inventory Classification, Cycle Count Plan,
 # Replenishment Planning, Demand Forecast, Service Level Analysis,
@@ -48,7 +63,9 @@ SHEET_ORDER = [
     "README",
     "Master Inventory",
     "Inventory Dashboard",
+    "Inventory Classification",
     "Aged Excess Analysis",
+    "Cycle Count Plan",
     "Markdown Planner",
     "Transfer Planner",
     "Management Summary",

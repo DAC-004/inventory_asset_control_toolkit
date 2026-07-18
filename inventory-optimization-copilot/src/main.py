@@ -65,6 +65,7 @@ def generate_all_data() -> dict:
 
     return {
         **datasets,
+        "inventory_full": datasets["inventory"],
         "inventory": inventory_for_workbook(datasets["inventory"]),
     }
 

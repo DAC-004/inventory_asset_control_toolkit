@@ -3,6 +3,7 @@
 from openpyxl import Workbook
 
 from src.data_generation.generate_inventory import generate_inventory_data
+from src.main import generate_all_data
 from src.sheets.inventory_dashboard_sheet import build
 
 
@@ -40,6 +41,18 @@ def test_inventory_dashboard_summary_tables():
     assert "Aging Bucket Summary" in combined
     assert "Recommended Action Summary" in combined
     assert "Top 10 Excess Inventory Items" in combined
+
+
+def test_inventory_dashboard_classification_kpis():
+    """Dashboard should render classification and cycle count KPI section."""
+    wb = Workbook()
+    ws = wb.active
+    data = generate_all_data()
+    build(ws, {"data": data})
+
+    assert ws.cell(row=8, column=1).value == "Classification & Cycle Count KPIs"
+    assert ws.cell(row=9, column=1).value == "Class A SKUs"
+    assert ws.cell(row=11, column=5).value == "Overdue Counts"
 
 
 def test_inventory_dashboard_gridlines_hidden():

@@ -28,4 +28,4 @@ def test_required_sheets_have_headers(tmp_path):
         == INVENTORY_HEADERS[0]
     )
     assert wb.sheetnames == SHEET_ORDER
-    assert len(wb.sheetnames) == 7
+    assert len(wb.sheetnames) == 9

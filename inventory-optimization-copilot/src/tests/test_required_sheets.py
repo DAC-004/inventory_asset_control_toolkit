@@ -6,8 +6,8 @@ from config.workbook_config import SHEET_ORDER
 
 
 def test_sheet_order_count():
-    """Inventory v2.0.0 phase 1 includes seven operational tabs."""
-    assert len(SHEET_ORDER) == 7
+    """Inventory v2.0.0 phase 1 includes nine operational tabs."""
+    assert len(SHEET_ORDER) == 9
 
 
 def test_sheet_names_within_excel_limit():
@@ -22,7 +22,9 @@ def test_sheet_order_is_inventory_only():
         "README",
         "Master Inventory",
         "Inventory Dashboard",
+        "Inventory Classification",
         "Aged Excess Analysis",
+        "Cycle Count Plan",
         "Markdown Planner",
         "Transfer Planner",
         "Management Summary",

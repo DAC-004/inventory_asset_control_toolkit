@@ -19,6 +19,8 @@ from config.workbook_config import (
 )
 from src.sheets import (
     aged_excess_sheet,
+    cycle_count_plan_sheet,
+    inventory_classification_sheet,
     inventory_dashboard_sheet,
     management_summary_sheet,
     markdown_planner_sheet,
@@ -33,7 +35,9 @@ SHEET_BUILDERS = {
     "README": readme_sheet.build,
     "Master Inventory": master_inventory_sheet.build,
     "Inventory Dashboard": inventory_dashboard_sheet.build,
+    "Inventory Classification": inventory_classification_sheet.build,
     "Aged Excess Analysis": aged_excess_sheet.build,
+    "Cycle Count Plan": cycle_count_plan_sheet.build,
     "Markdown Planner": markdown_planner_sheet.build,
     "Transfer Planner": transfer_planner_sheet.build,
     "Management Summary": management_summary_sheet.build,

@@ -152,10 +152,12 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
         row,
         "Tab order:\n"
         "1. Inventory Dashboard\n"
-        "2. Aged Excess Analysis\n"
-        "3. Transfer Planner\n"
-        "4. Markdown Planner\n"
-        "5. Management Summary\n\n"
+        "2. Inventory Classification\n"
+        "3. Aged Excess Analysis\n"
+        "4. Cycle Count Plan\n"
+        "5. Transfer Planner\n"
+        "6. Markdown Planner\n"
+        "7. Management Summary\n\n"
         "Suggested narrative:\n"
         '"This workbook focuses on inventory optimization. The dashboard shows total value, '
         "aged stock, excess exposure, and recovery opportunity. I drill into exceptions, "
@@ -169,6 +171,8 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
         ws,
         row,
         "• Inventory health dashboards with KPI cards and charts\n"
+        "• ABC classification, turnover, DOH, and inventory accuracy analytics\n"
+        "• Cycle count planning with risk-based prioritization\n"
         "• Aged, excess, slow-moving, and obsolete stock analysis\n"
         "• Transfer planning between locations to balance stock\n"
         "• Markdown modeling to protect margin on end-of-life inventory\n"
