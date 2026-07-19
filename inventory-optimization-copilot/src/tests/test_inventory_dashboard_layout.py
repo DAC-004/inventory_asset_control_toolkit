@@ -19,9 +19,9 @@ from src.sheets.dashboard_layout import (
     CHART_TITLES,
     DASHBOARD_CANVAS_COLS,
     DASHBOARD_COLUMN_WIDTHS,
-    DASHBOARD_SECTIONS,
     TABLE_AREA_END_COL,
-    chart_layout_specs,
+    chart_layout_specs_from_layouts,
+    compute_section_layouts,
 )
 from src.sheets.inventory_dashboard_sheet import build
 
@@ -45,38 +45,18 @@ def _anchor_col_row(chart) -> tuple[int, int]:
     return column_index_from_string(col_letter), row_num
 
 
-def _chart_bounds(chart) -> ChartBounds:
-    col, row = _anchor_col_row(chart)
-    width_cm = float(chart.width)
-    height_cm = float(chart.height)
-    end_col = col + max(1, int(round(width_cm / 2.0)))
-    end_row = row + max(1, int(round(height_cm / 0.4)))
-    title = chart.title
-    if title and title.tx and title.tx.rich and title.tx.rich.paragraphs:
-        name = title.tx.rich.paragraphs[0].r[0].t
-    else:
-        name = str(chart.title)
-    return ChartBounds(name, col, row, end_col, end_row)
-
-
-def _charts_overlap(a: ChartBounds, b: ChartBounds) -> bool:
-    if a.end_col < b.anchor_col or b.end_col < a.anchor_col:
-        return False
-    if a.end_row < b.anchor_row or b.end_row < a.anchor_row:
-        return False
-    return True
-
-
 def _build_dashboard_ws():
     wb = Workbook()
     ws = wb.active
-    build(ws, {"data": generate_all_data()})
-    return ws
+    ctx: dict = {"data": generate_all_data()}
+    build(ws, ctx)
+    return ws, ctx
 
 
 def test_dashboard_layout_chart_count_and_specs():
-    ws = _build_dashboard_ws()
-    specs = chart_layout_specs()
+    ws, ctx = _build_dashboard_ws()
+    layouts = ctx["_dashboard_section_layouts"]
+    specs = chart_layout_specs_from_layouts(layouts)
     assert len(ws._charts) == 10
     assert len(specs) == 10
 
@@ -93,10 +73,11 @@ def test_dashboard_layout_chart_count_and_specs():
 
 
 def test_dashboard_layout_sections_and_columns():
-    ws = _build_dashboard_ws()
-    specs = chart_layout_specs()
+    ws, ctx = _build_dashboard_ws()
+    layouts = ctx["_dashboard_section_layouts"]
+    specs = chart_layout_specs_from_layouts(layouts)
 
-    for section_spec, layout_spec in zip(DASHBOARD_SECTIONS, specs, strict=True):
+    for section_spec, layout_spec in zip(layouts, specs, strict=True):
         assert ws.cell(row=section_spec.start_row, column=1).value == section_spec.title
         header_row = section_spec.start_row + 2
         chart_for_section = [
@@ -120,8 +101,9 @@ def test_dashboard_layout_sections_and_columns():
 
 
 def test_dashboard_layout_no_chart_table_overlap():
-    ws = _build_dashboard_ws()
-    title_to_section = {s.chart_title: s for s in DASHBOARD_SECTIONS}
+    ws, ctx = _build_dashboard_ws()
+    layouts = ctx["_dashboard_section_layouts"]
+    title_to_section = {s.chart_title: s for s in layouts}
     for chart in ws._charts:
         title = chart.title.tx.rich.paragraphs[0].r[0].t
         section = title_to_section[title]
@@ -133,7 +115,7 @@ def test_dashboard_layout_no_chart_table_overlap():
 
 
 def test_dashboard_layout_freeze_and_view():
-    ws = _build_dashboard_ws()
+    ws, _ = _build_dashboard_ws()
     assert ws.freeze_panes == "A9"
     assert ws.sheet_view.showGridLines is False
     assert ws.sheet_view.zoomScale == 85
@@ -142,7 +124,7 @@ def test_dashboard_layout_freeze_and_view():
 
 
 def test_dashboard_workbook_integrity(tmp_path):
-    ws = _build_dashboard_ws()
+    ws, _ = _build_dashboard_ws()
     path = tmp_path / "dashboard_test.xlsx"
     ws.parent.save(path)
     reloaded = load_workbook(path)
@@ -151,13 +133,13 @@ def test_dashboard_workbook_integrity(tmp_path):
 
 
 def test_dashboard_column_widths_match_spec():
-    ws = _build_dashboard_ws()
+    ws, _ = _build_dashboard_ws()
     for letter, expected in DASHBOARD_COLUMN_WIDTHS.items():
         assert ws.column_dimensions[letter].width == expected
 
 
 def test_dashboard_chart_titles_are_business_focused():
-    ws = _build_dashboard_ws()
+    ws, _ = _build_dashboard_ws()
     titles = []
     for chart in ws._charts:
         title = chart.title.tx.rich.paragraphs[0].r[0].t
@@ -167,9 +149,26 @@ def test_dashboard_chart_titles_are_business_focused():
 
 
 def test_dashboard_chart_layout_spec_registry():
-    specs = chart_layout_specs()
+    counts = {key: 5 for key in CHART_TITLES}
+    layouts = compute_section_layouts(counts)
+    specs = chart_layout_specs_from_layouts(layouts)
     assert len({s.name for s in specs}) == 10
     for spec in specs:
         assert spec.allowed_start_col == CHART_AREA_START_COL
         assert spec.allowed_end_col == CHART_AREA_END_COL
         assert re.fullmatch(r"J\d+", spec.anchor_cell)
+
+
+def test_replenishment_section_fits_all_status_rows():
+    ws, ctx = _build_dashboard_ws()
+    meta = ctx["_dashboard_section_meta"]["replenishment"]
+    layouts = ctx["_dashboard_section_layouts"]
+    repl_section = next(s for s in layouts if s.key == "replenishment")
+    data_rows = meta["last_data_row"] - meta["first_data_row"] + 1
+    assert data_rows == repl_section.data_row_count
+    assert meta["last_data_row"] <= repl_section.end_row
+
+    for row in range(meta["first_data_row"], meta["last_data_row"] + 1):
+        dim = ws.row_dimensions[row]
+        assert dim.hidden is not True
+        assert dim.height not in (0, 0.0)

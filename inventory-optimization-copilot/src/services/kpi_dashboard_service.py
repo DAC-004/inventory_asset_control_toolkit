@@ -6,7 +6,6 @@ from typing import Any
 
 import pandas as pd
 
-from config.workbook_config import INVENTORY_STATUSES, RECOMMENDED_ACTIONS
 from src.domain.constants import AGING_BUCKETS
 from src.services.classification_service import build_classification_dataframe
 from src.services.forecast_service import build_demand_forecast_dataframe
@@ -70,9 +69,11 @@ def compute_status_summary(df: pd.DataFrame) -> pd.DataFrame:
         )
         .rename(columns={"status": "inventory_status"})
     )
-    order = {status: i for i, status in enumerate(INVENTORY_STATUSES)}
-    summary["_order"] = summary["inventory_status"].map(order)
-    summary = summary.sort_values("_order").drop(columns="_order")
+    summary = summary.sort_values(
+        ["inventory_value", "inventory_status"],
+        ascending=[False, True],
+        kind="stable",
+    )
     return _add_percent_of_total(summary, "inventory_value")
 
 
@@ -118,9 +119,11 @@ def compute_action_summary(df: pd.DataFrame) -> pd.DataFrame:
         inventory_value=("total_value", "sum"),
     )
     summary["estimated_financial_impact"] = summary["inventory_value"]
-    order = {action: i for i, action in enumerate(RECOMMENDED_ACTIONS)}
-    summary["_order"] = summary["recommended_action"].map(order)
-    return summary.sort_values("_order").drop(columns="_order")
+    return summary.sort_values(
+        ["inventory_value", "recommended_action"],
+        ascending=[False, True],
+        kind="stable",
+    )
 
 
 def compute_top_excess(df: pd.DataFrame, limit: int = 10) -> pd.DataFrame:
@@ -140,16 +143,21 @@ def compute_top_excess(df: pd.DataFrame, limit: int = 10) -> pd.DataFrame:
     working["excess_quantity"] = working["quantity_on_hand"] - working["max_stock"]
     working = working[working["excess_quantity"] > 0]
     working["excess_value"] = working["excess_quantity"] * working["unit_cost"]
-    top = working.nlargest(limit, "excess_value")
+    top = working.sort_values(
+        ["excess_value", "sku", "location"],
+        ascending=[False, True, True],
+        kind="stable",
+    ).head(limit)
     result = top[
         ["sku", "product_name", "location", "excess_quantity", "excess_value"]
     ].reset_index(drop=True)
     result.insert(0, "rank", range(1, len(result) + 1))
+    short_name = result["product_name"].astype(str).str.slice(0, 20)
     result["chart_label"] = (
         result["sku"].astype(str)
-        + " - "
-        + result["product_name"].astype(str).str.slice(0, 24)
-        + " - "
+        + " | "
+        + short_name
+        + " | "
         + result["location"].astype(str)
     )
     return result
@@ -298,7 +306,11 @@ def compute_transfer_benefit_summary(
             ]
         )
     positive = transfers.loc[transfers["Net Benefit"] > 0]
-    top = positive.nlargest(limit, "Net Benefit")
+    top = positive.sort_values(
+        ["Net Benefit", "SKU", "Source Location", "Destination Location"],
+        ascending=[False, True, True, True],
+        kind="stable",
+    ).head(limit)
     result = top[
         [
             "Source Location",
@@ -320,9 +332,9 @@ def compute_transfer_benefit_summary(
     result.insert(0, "rank", range(1, len(result) + 1))
     result["chart_label"] = (
         result["sku"].astype(str)
-        + ": "
+        + " | "
         + result["source_location"].astype(str)
-        + " to "
+        + " → "
         + result["destination_location"].astype(str)
     )
     return result

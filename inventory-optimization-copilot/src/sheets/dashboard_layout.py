@@ -10,19 +10,21 @@ DIVIDER_COL = 9  # I spacer
 CHART_AREA_START_COL = 10  # J
 CHART_AREA_END_COL = 22  # V
 CHART_ANCHOR_COL = "J"
-CHART_LABEL_COL = 8  # column H — optional chart category helper (outside table)
+CHART_LABEL_COL = 8  # column H — chart category helper outside table range
 
 KPI_START_ROW = 1
 KPI_END_ROW = 8
 FREEZE_PANE = "A9"
 SECTIONS_START_ROW = 10
+SECTION_SPACER_ROWS = 2
 
-CHART_WIDTH_CM = 26.0
-CHART_HEIGHT_CM = 10.0
+CHART_WIDTH_CM = 28.0
+CHART_HEIGHT_CM = 10.5
 CHART_MIN_WIDTH_CM = 24.0
-CHART_MAX_WIDTH_CM = 28.0
+CHART_MAX_WIDTH_CM = 30.0
 CHART_MIN_HEIGHT_CM = 9.0
-CHART_MAX_HEIGHT_CM = 11.0
+CHART_MAX_HEIGHT_CM = 12.0
+MIN_CHART_BODY_ROWS = 12
 
 AS_OF_CONTEXT = "As of July 1, 2026"
 
@@ -52,10 +54,10 @@ DASHBOARD_COLUMN_WIDTHS: dict[str, float] = {
 }
 
 SECTION_TITLE_HEIGHT = 26
-TABLE_HEADER_HEIGHT = 24
+TABLE_HEADER_HEIGHT = 28
 DATA_ROW_HEIGHT = 20
+CONTEXT_ROW_HEIGHT = 16
 
-# Approved chart titles (business-focused)
 CHART_TITLES: dict[str, str] = {
     "location": "Inventory Value by Location",
     "status": "Inventory Exposure by Status",
@@ -69,24 +71,47 @@ CHART_TITLES: dict[str, str] = {
     "action": "Inventory Value by Recommended Action",
 }
 
+CHART_SERIES_NAMES: dict[str, str] = {
+    "location": "Inventory Value",
+    "status": "Inventory Value",
+    "aging": "Inventory Value",
+    "top_excess": "Excess Inventory Value",
+    "abc_usage": "Annual Usage Value",
+    "replenishment": "Recommended Order Value",
+    "vendor_risk": "Open PO Value",
+    "transfer_benefit": "Net Benefit",
+    "action": "Inventory Value",
+}
+
 
 @dataclass(frozen=True)
-class DashboardSectionSpec:
-    """Fixed row block for one table/chart pair."""
+class DashboardSectionDef:
+    """Logical dashboard section — row span computed at build time."""
+
+    key: str
+    title: str
+    chart_type: str
+    ranked: bool = False
+    context: str = AS_OF_CONTEXT
+
+
+@dataclass
+class DashboardSectionLayout:
+    """Resolved row block for one table/chart pair."""
 
     key: str
     title: str
     chart_title: str
+    chart_type: str
     start_row: int
     end_row: int
-    chart_type: str
     context: str = AS_OF_CONTEXT
+    ranked: bool = False
+    data_row_count: int = 0
 
 
-@dataclass(frozen=True)
+@dataclass
 class ChartLayoutSpec:
-    """Automated layout test specification for one dashboard chart."""
-
     name: str
     section: int
     anchor_cell: str
@@ -95,45 +120,70 @@ class ChartLayoutSpec:
     allowed_start_col: int
     allowed_end_col: int
     chart_type: str
+    ranked: bool = False
 
 
-def _section(start: int, key: str, title: str, chart_type: str) -> DashboardSectionSpec:
-    return DashboardSectionSpec(
-        key=key,
-        title=title,
-        chart_title=CHART_TITLES[key],
-        start_row=start,
-        end_row=start + 19,
-        chart_type=chart_type,
-    )
-
-
-# Two blank rows between each 20-row section block.
-DASHBOARD_SECTIONS: tuple[DashboardSectionSpec, ...] = (
-    _section(10, "location", "Inventory Value by Location", "horizontal_bar"),
-    _section(32, "status", "Inventory Exposure by Status", "horizontal_bar"),
-    _section(54, "aging", "Inventory Value by Aging Bucket", "column"),
-    _section(76, "top_excess", "Top 10 Excess Inventory Items", "horizontal_bar"),
-    _section(98, "abc_usage", "Annual Usage Value by ABC Class", "column"),
-    _section(
-        120, "replenishment", "Replenishment Requirements by Status", "horizontal_bar"
+DASHBOARD_SECTION_DEFS: tuple[DashboardSectionDef, ...] = (
+    DashboardSectionDef("location", "Inventory Value by Location", "horizontal_bar"),
+    DashboardSectionDef("status", "Inventory Exposure by Status", "horizontal_bar"),
+    DashboardSectionDef("aging", "Inventory Value by Aging Bucket", "column"),
+    DashboardSectionDef(
+        "top_excess", "Top 10 Excess Inventory Items", "horizontal_bar", ranked=True
     ),
-    _section(142, "fill_rate", "Fill Rate by Location", "clustered_bar"),
-    _section(164, "vendor_risk", "Supplier Exposure by Risk Class", "column"),
-    _section(
-        186,
+    DashboardSectionDef("abc_usage", "Annual Usage Value by ABC Class", "column"),
+    DashboardSectionDef(
+        "replenishment", "Replenishment Requirements by Status", "horizontal_bar"
+    ),
+    DashboardSectionDef("fill_rate", "Fill Rate by Location", "clustered_bar"),
+    DashboardSectionDef(
+        "vendor_risk", "Supplier Exposure by Risk Class", "horizontal_bar"
+    ),
+    DashboardSectionDef(
         "transfer_benefit",
         "Top Transfer Opportunities by Net Benefit",
         "horizontal_bar",
+        ranked=True,
     ),
-    _section(208, "action", "Inventory Value by Recommended Action", "horizontal_bar"),
+    DashboardSectionDef(
+        "action", "Inventory Value by Recommended Action", "horizontal_bar"
+    ),
 )
 
 
-def chart_layout_specs() -> tuple[ChartLayoutSpec, ...]:
-    """Build chart layout specs from the fixed section grid."""
+def compute_section_layouts(
+    data_row_counts: dict[str, int],
+    start_row: int = SECTIONS_START_ROW,
+) -> list[DashboardSectionLayout]:
+    """Compute dynamic section row spans from actual table row counts."""
+    layouts: list[DashboardSectionLayout] = []
+    current = start_row
+    for section_def in DASHBOARD_SECTION_DEFS:
+        data_rows = max(1, data_row_counts.get(section_def.key, 1))
+        body_rows = max(data_rows, MIN_CHART_BODY_ROWS)
+        section_rows = 1 + 1 + 1 + body_rows  # title + context + header + data
+        end_row = current + section_rows - 1
+        layouts.append(
+            DashboardSectionLayout(
+                key=section_def.key,
+                title=section_def.title,
+                chart_title=CHART_TITLES[section_def.key],
+                chart_type=section_def.chart_type,
+                start_row=current,
+                end_row=end_row,
+                context=section_def.context,
+                ranked=section_def.ranked,
+                data_row_count=data_rows,
+            )
+        )
+        current = end_row + SECTION_SPACER_ROWS + 1
+    return layouts
+
+
+def chart_layout_specs_from_layouts(
+    layouts: list[DashboardSectionLayout],
+) -> tuple[ChartLayoutSpec, ...]:
     specs: list[ChartLayoutSpec] = []
-    for idx, section in enumerate(DASHBOARD_SECTIONS, start=1):
+    for idx, section in enumerate(layouts, start=1):
         anchor_row = section.start_row + 2
         specs.append(
             ChartLayoutSpec(
@@ -145,6 +195,16 @@ def chart_layout_specs() -> tuple[ChartLayoutSpec, ...]:
                 allowed_start_col=CHART_AREA_START_COL,
                 allowed_end_col=CHART_AREA_END_COL,
                 chart_type=section.chart_type,
+                ranked=section.ranked,
             )
         )
     return tuple(specs)
+
+
+def chart_layout_specs(
+    data_row_counts: dict[str, int] | None = None,
+) -> tuple[ChartLayoutSpec, ...]:
+    """Return chart layout specs; defaults to one row per section when counts omitted."""
+    counts = data_row_counts or {s.key: 1 for s in DASHBOARD_SECTION_DEFS}
+    layouts = compute_section_layouts(counts)
+    return chart_layout_specs_from_layouts(layouts)

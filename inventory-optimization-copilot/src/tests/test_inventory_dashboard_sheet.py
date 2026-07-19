@@ -10,7 +10,6 @@ from src.sheets.dashboard_layout import (
     CHART_HEIGHT_CM,
     CHART_WIDTH_CM,
     DASHBOARD_CANVAS_COLS,
-    DASHBOARD_SECTIONS,
 )
 from src.sheets.inventory_dashboard_sheet import build
 
@@ -29,13 +28,14 @@ def test_inventory_dashboard_kpi_sections():
 
 
 def test_inventory_dashboard_summary_tables_and_charts():
-    """Dashboard should include ten fixed sections with side-by-side charts."""
+    """Dashboard should include ten dynamic sections with side-by-side charts."""
     wb = Workbook()
     ws = wb.active
-    data = generate_all_data()
-    build(ws, {"data": data})
+    ctx: dict = {"data": generate_all_data()}
+    build(ws, ctx)
 
-    for section in DASHBOARD_SECTIONS:
+    layouts = ctx["_dashboard_section_layouts"]
+    for section in layouts:
         assert ws.cell(row=section.start_row, column=1).value == section.title
 
     assert len(ws._charts) == 10

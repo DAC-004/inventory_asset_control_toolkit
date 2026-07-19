@@ -33,15 +33,17 @@ from src.sheets.dashboard_layout import (
     CHART_AREA_START_COL,
     CHART_HEIGHT_CM,
     CHART_LABEL_COL,
+    CHART_SERIES_NAMES,
     CHART_WIDTH_CM,
     DASHBOARD_CANVAS_COLS,
     DASHBOARD_COLUMN_WIDTHS,
-    DASHBOARD_SECTIONS,
+    DashboardSectionLayout,
     DATA_ROW_HEIGHT,
     FREEZE_PANE,
     SECTION_TITLE_HEIGHT,
     TABLE_AREA_END_COL,
     TABLE_HEADER_HEIGHT,
+    compute_section_layouts,
 )
 from src.workbook.charts import (
     add_bar_chart,
@@ -60,11 +62,6 @@ from src.workbook.utils import (
 )
 
 DASHBOARD_TABLE_PREFIX = "Dashboard"
-MAX_TABLE_DATA_ROWS = 12
-
-LAYOUT_COLS = DASHBOARD_CANVAS_COLS
-CHART_BAR_WIDTH_CM = CHART_WIDTH_CM
-CHART_MAX_HEIGHT_CM = CHART_HEIGHT_CM
 
 
 def _data_end_row(record_count: int) -> int:
@@ -241,7 +238,7 @@ def _write_section_context(ws: Worksheet, row: int, context: str) -> None:
 
 def _write_section_table(
     ws: Worksheet,
-    section: Any,
+    section: DashboardSectionLayout,
     headers: list[str],
     rows: list[list[Any]],
     table_name: str,
@@ -251,29 +248,39 @@ def _write_section_table(
     context_row = section.start_row + 1
     _write_section_context(ws, context_row, section.context)
     header_row = section.start_row + 2
-    trimmed = rows[:MAX_TABLE_DATA_ROWS]
 
     for col_idx, header in enumerate(headers, start=1):
-        ws.cell(row=header_row, column=col_idx, value=header)
+        cell = ws.cell(row=header_row, column=col_idx, value=header)
+        cell.alignment = Alignment(
+            horizontal="center", vertical="center", wrap_text=True
+        )
     ws.row_dimensions[header_row].height = TABLE_HEADER_HEIGHT
 
     first_data_row = header_row + 1
     wrap = Alignment(horizontal="left", vertical="center", wrap_text=True)
     num_align = Alignment(horizontal="right", vertical="center")
-    for row_offset, row_values in enumerate(trimmed):
+    center_align = Alignment(horizontal="center", vertical="center")
+    for row_offset, row_values in enumerate(rows):
         excel_row = first_data_row + row_offset
         ws.row_dimensions[excel_row].height = DATA_ROW_HEIGHT
+        ws.row_dimensions[excel_row].hidden = False
         for col_idx, value in enumerate(row_values, start=1):
             cell = ws.cell(row=excel_row, column=col_idx, value=value)
-            cell.alignment = num_align if col_idx > 1 else wrap
+            if col_idx == 1 and isinstance(value, int):
+                cell.alignment = center_align
+            elif col_idx > 1:
+                cell.alignment = num_align
+            else:
+                cell.alignment = wrap
 
     if chart_labels:
-        for row_offset, label in enumerate(chart_labels[: len(trimmed)]):
-            ws.cell(
+        for row_offset, label in enumerate(chart_labels):
+            label_cell = ws.cell(
                 row=first_data_row + row_offset, column=CHART_LABEL_COL, value=label
             )
+            label_cell.alignment = wrap
 
-    last_data_row = first_data_row + len(trimmed) - 1 if trimmed else header_row
+    last_data_row = first_data_row + len(rows) - 1 if rows else header_row
     table_cols = min(
         len(headers),
         TABLE_AREA_END_COL - 1 if chart_labels else TABLE_AREA_END_COL,
@@ -513,7 +520,9 @@ def _category_count(meta: dict[str, int]) -> int:
     return meta["last_data_row"] - meta["first_data_row"] + 1
 
 
-def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> None:
+def _add_section_chart(
+    ws: Worksheet, section: DashboardSectionLayout, meta: dict[str, int]
+) -> None:
     if meta["last_data_row"] < meta["first_data_row"]:
         return
 
@@ -521,8 +530,7 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
     w, h = CHART_WIDTH_CM, CHART_HEIGHT_CM
     hr = meta["header_row"]
     lr = meta["last_data_row"]
-    count = _category_count(meta)
-    labels = count <= 10
+    series_name = CHART_SERIES_NAMES.get(section.key)
 
     if section.key in {"top_excess", "transfer_benefit"}:
         cats = make_category_reference(
@@ -542,10 +550,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Inventory Value ($)",
-            x_axis_title="Location",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Inventory Value ($)",
+            category_axis_title="Location",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "status":
         data = make_data_reference(ws, 3, hr, lr)
@@ -558,10 +567,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Inventory Value ($)",
-            x_axis_title="Inventory Status",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Inventory Value ($)",
+            category_axis_title="Inventory Status",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "aging":
         data = make_data_reference(ws, 3, hr, lr)
@@ -573,10 +583,12 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             anchor=anchor,
             width=w,
             height=h,
-            y_axis_title="Inventory Value ($)",
-            x_axis_title="Aging Bucket",
-            hide_legend=True,
-            show_data_labels=labels,
+            horizontal=False,
+            value_axis_title="Inventory Value ($)",
+            category_axis_title="Aging Bucket",
+            reverse_category_order=False,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "top_excess":
         data = make_data_reference(ws, 6, hr, lr)
@@ -589,10 +601,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Excess Inventory Value ($)",
-            x_axis_title="Item",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Excess Inventory Value ($)",
+            category_axis_title="Inventory Item",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "abc_usage":
         data = make_data_reference(ws, 3, hr, lr)
@@ -604,10 +617,12 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             anchor=anchor,
             width=w,
             height=h,
-            y_axis_title="Annual Usage Value ($)",
-            x_axis_title="ABC Class",
-            hide_legend=True,
-            show_data_labels=labels,
+            horizontal=False,
+            value_axis_title="Annual Usage Value ($)",
+            category_axis_title="ABC Class",
+            reverse_category_order=False,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "replenishment":
         data = make_data_reference(ws, 4, hr, lr)
@@ -620,10 +635,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Recommended Order Value ($)",
-            x_axis_title="Replenishment Status",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Recommended Order Value ($)",
+            category_axis_title="Replenishment Status",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "fill_rate":
         data = make_data_reference(ws, 2, hr, lr, max_col=4)
@@ -636,10 +652,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Fill Rate (%)",
-            x_axis_title="Location",
+            value_axis_title="Fill Rate (%)",
+            category_axis_title="Location",
             value_axis_min=0,
             value_axis_max=1,
+            reverse_category_order=True,
         )
     elif section.key == "vendor_risk":
         data = make_data_reference(ws, 3, hr, lr)
@@ -651,10 +668,12 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             anchor=anchor,
             width=w,
             height=h,
-            y_axis_title="Open PO Value ($)",
-            x_axis_title="Vendor Risk Class",
-            hide_legend=True,
-            show_data_labels=labels,
+            horizontal=True,
+            value_axis_title="Open PO Value ($)",
+            category_axis_title="Vendor Risk Class",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "transfer_benefit":
         data = make_data_reference(ws, 6, hr, lr)
@@ -667,10 +686,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Net Benefit ($)",
-            x_axis_title="Transfer Lane",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Net Benefit ($)",
+            category_axis_title="Transfer Opportunity",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
     elif section.key == "action":
         data = make_data_reference(ws, 3, hr, lr)
@@ -683,10 +703,11 @@ def _add_section_chart(ws: Worksheet, section: Any, meta: dict[str, int]) -> Non
             width=w,
             height=h,
             horizontal=True,
-            y_axis_title="Inventory Value ($)",
-            x_axis_title="Recommended Action",
-            hide_legend=True,
-            show_data_labels=labels,
+            value_axis_title="Inventory Value ($)",
+            category_axis_title="Recommended Action",
+            reverse_category_order=True,
+            show_data_labels=True,
+            series_name=series_name,
         )
 
 
@@ -709,10 +730,14 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
     _apply_canvas_columns(ws)
     _write_header_and_kpis(ws, end_row, data)
 
-    section_meta: dict[str, dict[str, int]] = {}
     datasets = _section_dataframes(df, data)
+    data_row_counts = {
+        key: max(1, len(summary_df)) for key, (_, summary_df, _, _) in datasets.items()
+    }
+    section_layouts = compute_section_layouts(data_row_counts)
+    section_meta: dict[str, dict[str, int]] = {}
 
-    for idx, section in enumerate(DASHBOARD_SECTIONS, start=1):
+    for idx, section in enumerate(section_layouts, start=1):
         headers, summary_df, cols, label_col = datasets[section.key]
         rows = summary_df[cols].values.tolist() if not summary_df.empty else []
         chart_labels = None
@@ -730,7 +755,8 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
         _format_section_table(ws, section.key, meta)
         _add_section_chart(ws, section, meta)
 
-    last_row = DASHBOARD_SECTIONS[-1].end_row
+    last_row = section_layouts[-1].end_row
     _apply_view_settings(ws, last_row)
     set_landscape_print(ws, fit_width=1, repeat_header_rows="1:2")
     context["_dashboard_section_meta"] = section_meta
+    context["_dashboard_section_layouts"] = section_layouts

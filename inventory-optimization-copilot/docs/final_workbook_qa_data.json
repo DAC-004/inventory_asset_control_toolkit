@@ -1,0 +1,351 @@
+{
+  "path": "/workspaces/inventory_asset_control_toolkit/inventory-optimization-copilot/dist/Inventory_Optimization_Copilot.xlsx",
+  "size_bytes": 205856,
+  "sheet_count": 14,
+  "sheets": [
+    {
+      "name": "README",
+      "tables_inspected": 0,
+      "table_rows": 0,
+      "charts_inspected": 0,
+      "max_col": 4,
+      "print_area": ""
+    },
+    {
+      "name": "Master Inventory",
+      "tables_inspected": 1,
+      "table_rows": 120,
+      "charts_inspected": 0,
+      "max_col": 22,
+      "print_area": ""
+    },
+    {
+      "name": "Inventory Dashboard",
+      "tables_inspected": 10,
+      "table_rows": 70,
+      "charts_inspected": 10,
+      "max_col": 22,
+      "print_area": "'Inventory Dashboard'!$A$1:$V$177"
+    },
+    {
+      "name": "Inventory Classification",
+      "tables_inspected": 1,
+      "table_rows": 32,
+      "charts_inspected": 2,
+      "max_col": 28,
+      "print_area": ""
+    },
+    {
+      "name": "Aged Excess Analysis",
+      "tables_inspected": 1,
+      "table_rows": 82,
+      "charts_inspected": 0,
+      "max_col": 14,
+      "print_area": ""
+    },
+    {
+      "name": "Cycle Count Plan",
+      "tables_inspected": 1,
+      "table_rows": 120,
+      "charts_inspected": 0,
+      "max_col": 19,
+      "print_area": ""
+    },
+    {
+      "name": "Replenishment Planning",
+      "tables_inspected": 1,
+      "table_rows": 120,
+      "charts_inspected": 2,
+      "max_col": 50,
+      "print_area": ""
+    },
+    {
+      "name": "Transfer Planner",
+      "tables_inspected": 1,
+      "table_rows": 29,
+      "charts_inspected": 0,
+      "max_col": 29,
+      "print_area": ""
+    },
+    {
+      "name": "Markdown Planner",
+      "tables_inspected": 1,
+      "table_rows": 64,
+      "charts_inspected": 0,
+      "max_col": 21,
+      "print_area": ""
+    },
+    {
+      "name": "Demand Forecast",
+      "tables_inspected": 1,
+      "table_rows": 90,
+      "charts_inspected": 3,
+      "max_col": 29,
+      "print_area": ""
+    },
+    {
+      "name": "Service Level Analysis",
+      "tables_inspected": 1,
+      "table_rows": 147,
+      "charts_inspected": 2,
+      "max_col": 25,
+      "print_area": ""
+    },
+    {
+      "name": "Purchase Order Tracker",
+      "tables_inspected": 1,
+      "table_rows": 90,
+      "charts_inspected": 2,
+      "max_col": 31,
+      "print_area": ""
+    },
+    {
+      "name": "Vendor Scorecards",
+      "tables_inspected": 1,
+      "table_rows": 10,
+      "charts_inspected": 2,
+      "max_col": 27,
+      "print_area": ""
+    },
+    {
+      "name": "Management Summary",
+      "tables_inspected": 0,
+      "table_rows": 0,
+      "charts_inspected": 0,
+      "max_col": 10,
+      "print_area": ""
+    }
+  ],
+  "charts": [
+    {
+      "title": "Inventory Value by Location",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Location'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Inventory Exposure by Status",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Status'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Inventory Value by Aging Bucket",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": null,
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Aging Bucket'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Top 10 Excess Inventory Items",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Excess Inventory Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Item'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Annual Usage Value by ABC Class",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": null,
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='ABC Class'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Annual Usage Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Replenishment Requirements by Status",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Recommended Order Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Replenishment Status'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Fill Rate by Location",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Fill Rate (%)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Location'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Supplier Exposure by Risk Class",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Open PO Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Vendor Risk Class'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Top Transfer Opportunities by Net Benefit",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Net Benefit ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Transfer Opportunity'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "Inventory Value by Recommended Action",
+      "type": "bar",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": true,
+      "category_orientation": "maxMin",
+      "x_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Inventory Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Recommended Action'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Dashboard"
+    },
+    {
+      "title": "ABC Class Mix",
+      "type": "PieChart",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "sheet": "Inventory Classification"
+    },
+    {
+      "title": "Top Usage Value SKUs",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": null,
+      "x_axis_title": "None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Usage Value ($)'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Inventory Classification"
+    },
+    {
+      "title": "Replenishment Status Mix",
+      "type": "PieChart",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "sheet": "Replenishment Planning"
+    },
+    {
+      "title": "Top Recommended Order Quantities",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": null,
+      "x_axis_title": "None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Units'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Replenishment Planning"
+    },
+    {
+      "title": "Demand History \u2014 B-1011",
+      "type": "LineChart",
+      "legend_position": null,
+      "legend_overlay": null,
+      "data_labels_value_only": null,
+      "sheet": "Demand Forecast"
+    },
+    {
+      "title": "Demand History \u2014 T-1023",
+      "type": "LineChart",
+      "legend_position": null,
+      "legend_overlay": null,
+      "data_labels_value_only": null,
+      "sheet": "Demand Forecast"
+    },
+    {
+      "title": "Demand History \u2014 BP-1005",
+      "type": "LineChart",
+      "legend_position": null,
+      "legend_overlay": null,
+      "data_labels_value_only": null,
+      "sheet": "Demand Forecast"
+    },
+    {
+      "title": "Service Status Mix",
+      "type": "PieChart",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "sheet": "Service Level Analysis"
+    },
+    {
+      "title": "Largest Service Gaps",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": null,
+      "x_axis_title": "None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Gap'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Service Level Analysis"
+    },
+    {
+      "title": "PO Status Mix",
+      "type": "PieChart",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "sheet": "Purchase Order Tracker"
+    },
+    {
+      "title": "Days Late \u2014 Top PO Lines",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": null,
+      "x_axis_title": "None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Days'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Purchase Order Tracker"
+    },
+    {
+      "title": "Vendor Risk Mix",
+      "type": "PieChart",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "sheet": "Vendor Scorecards"
+    },
+    {
+      "title": "Top Vendor Scores",
+      "type": "col",
+      "legend_position": "r",
+      "legend_overlay": false,
+      "data_labels_value_only": null,
+      "category_orientation": null,
+      "x_axis_title": "None",
+      "y_axis_title": "<openpyxl.chart.title.Title object>\nParameters:\ntx=<openpyxl.chart.text.Text object>\nParameters:\nstrRef=None, rich=<openpyxl.chart.text.RichText object>\nParameters:\nbodyPr=<openpyxl.drawing.text.RichTextProperties object>\nParameters:\nrot=None, spcFirstLastPara=None, vertOverflow=None, horzOverflow=None, vert=None, wrap=None, lIns=None, tIns=None, rIns=None, bIns=None, numCol=None, spcCol=None, rtlCol=None, fromWordArt=None, anchor=None, anchorCtr=None, forceAA=None, upright=None, compatLnSpc=None, prstTxWarp=None, scene3d=None, noAutofit=False, normAutofit=False, spAutoFit=False, lstStyle=None, p=[<openpyxl.drawing.text.Paragraph object>\nParameters:\npPr=<openpyxl.drawing.text.ParagraphProperties object>\nParameters:\nmarL=None, marR=None, lvl=None, indent=None, algn=None, defTabSz=None, rtl=None, eaLnBrk=None, fontAlgn=None, latinLnBrk=None, hangingPunct=None, lnSpc=None, spcBef=None, spcAft=None, tabLst=None, defRPr=<openpyxl.drawing.text.CharacterProperties object>\nParameters:\nkumimoji=None, lang=None, altLang=None, sz=None, b=None, i=None, u=None, strike=None, kern=None, cap=None, spc=None, normalizeH=None, baseline=None, noProof=None, dirty=None, err=None, smtClean=None, smtId=None, bmk=None, ln=None, noFill=False, solidFill=None, gradFill=None, blipFill=None, pattFill=None, grpFill=False, effectLst=None, effectDag=None, highlight=None, uLnTx=False, uLn=None, uFillTx=False, uFill=False, latin=None, ea=None, cs=None, sym=None, hlinkClick=None, hlinkMouseOver=None, rtl=None, buClrTx=False, buClr=None, buSzTx=False, buSzPct=None, buSzPts=None, buFontTx=False, buFont=None, buNone=False, buAutoNum=False, buChar=None, buBlip=None, r=[<openpyxl.drawing.text.RegularTextRun object>\nParameters:\nrPr=None, t='Score'], br=None, fld=None, endParaRPr=None], layout=None, overlay=None, spPr=None, txPr=None",
+      "sheet": "Vendor Scorecards"
+    }
+  ],
+  "round_trip_ok": true
+}
