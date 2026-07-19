@@ -145,6 +145,13 @@ def compute_top_excess(df: pd.DataFrame, limit: int = 10) -> pd.DataFrame:
         ["sku", "product_name", "location", "excess_quantity", "excess_value"]
     ].reset_index(drop=True)
     result.insert(0, "rank", range(1, len(result) + 1))
+    result["chart_label"] = (
+        result["sku"].astype(str)
+        + " - "
+        + result["product_name"].astype(str).str.slice(0, 24)
+        + " - "
+        + result["location"].astype(str)
+    )
     return result
 
 
@@ -263,7 +270,13 @@ def compute_vendor_risk_summary(data: dict[str, pd.DataFrame]) -> pd.DataFrame:
         )
         .rename(columns={"Risk Class": "vendor_risk_class"})
     )
-    order = {"Preferred": 0, "Approved": 1, "Watch": 2, "High Risk": 3}
+    order = {
+        "Preferred": 0,
+        "Approved": 1,
+        "Watch": 2,
+        "High Risk": 3,
+        "Data Insufficient": 4,
+    }
     summary["_order"] = summary["vendor_risk_class"].map(order).fillna(99)
     return summary.sort_values("_order").drop(columns="_order")
 
@@ -284,7 +297,8 @@ def compute_transfer_benefit_summary(
                 "net_benefit",
             ]
         )
-    top = transfers.nlargest(limit, "Net Benefit")
+    positive = transfers.loc[transfers["Net Benefit"] > 0]
+    top = positive.nlargest(limit, "Net Benefit")
     result = top[
         [
             "Source Location",
@@ -304,6 +318,13 @@ def compute_transfer_benefit_summary(
     )
     result = result.reset_index(drop=True)
     result.insert(0, "rank", range(1, len(result) + 1))
+    result["chart_label"] = (
+        result["sku"].astype(str)
+        + ": "
+        + result["source_location"].astype(str)
+        + " to "
+        + result["destination_location"].astype(str)
+    )
     return result
 
 

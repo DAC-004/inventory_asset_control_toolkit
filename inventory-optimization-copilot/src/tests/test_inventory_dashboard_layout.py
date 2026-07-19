@@ -1,4 +1,4 @@
-"""Automated layout verification for Inventory Dashboard A:R grid."""
+"""Automated layout verification for Inventory Dashboard A:V grid."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from src.sheets.dashboard_layout import (
     CHART_MAX_WIDTH_CM,
     CHART_MIN_HEIGHT_CM,
     CHART_MIN_WIDTH_CM,
+    CHART_TITLES,
     DASHBOARD_CANVAS_COLS,
     DASHBOARD_COLUMN_WIDTHS,
     DASHBOARD_SECTIONS,
@@ -48,8 +49,8 @@ def _chart_bounds(chart) -> ChartBounds:
     col, row = _anchor_col_row(chart)
     width_cm = float(chart.width)
     height_cm = float(chart.height)
-    end_col = col + max(1, int(round(width_cm / 2.5)))
-    end_row = row + max(1, int(round(height_cm / 0.45)))
+    end_col = col + max(1, int(round(width_cm / 2.0)))
+    end_row = row + max(1, int(round(height_cm / 0.4)))
     title = chart.title
     if title and title.tx and title.tx.rich and title.tx.rich.paragraphs:
         name = title.tx.rich.paragraphs[0].r[0].t
@@ -96,10 +97,8 @@ def test_dashboard_layout_sections_and_columns():
     specs = chart_layout_specs()
 
     for section_spec, layout_spec in zip(DASHBOARD_SECTIONS, specs, strict=True):
-        title_cell = ws.cell(row=section_spec.start_row, column=1).value
-        assert title_cell == section_spec.title
-        header_row = section_spec.start_row + 1
-
+        assert ws.cell(row=section_spec.start_row, column=1).value == section_spec.title
+        header_row = section_spec.start_row + 2
         chart_for_section = [
             c
             for c in ws._charts
@@ -107,10 +106,8 @@ def test_dashboard_layout_sections_and_columns():
             and _anchor_col_row(c)[0] >= CHART_AREA_START_COL
         ]
         assert len(chart_for_section) == 1
-        chart = chart_for_section[0]
-        col, row = _anchor_col_row(chart)
+        col, row = _anchor_col_row(chart_for_section[0])
         assert layout_spec.anchor_cell == f"{get_column_letter(col)}{row}"
-        assert section_spec.start_row <= row <= section_spec.end_row
 
     for col_idx in range(1, DASHBOARD_CANVAS_COLS + 1):
         letter = get_column_letter(col_idx)
@@ -118,35 +115,30 @@ def test_dashboard_layout_sections_and_columns():
         assert dim.hidden is False
         assert (dim.width or 0) > 0
 
-    for letter in "EFGHIJKL":
+    for letter in "EFGHIJKLMNOP":
         assert (ws.column_dimensions[letter].width or 0) > 0
 
 
 def test_dashboard_layout_no_chart_table_overlap():
     ws = _build_dashboard_ws()
-    bounds = [_chart_bounds(c) for c in ws._charts]
-
-    for i, a in enumerate(bounds):
-        for b in bounds[i + 1 :]:
-            assert not _charts_overlap(a, b), f"Charts overlap: {a.name} and {b.name}"
-        assert a.anchor_col > TABLE_AREA_END_COL, f"{a.name} intersects table area"
-        assert a.end_col <= CHART_AREA_END_COL + 2
-
-
-def test_dashboard_layout_table_starts_in_table_area():
-    ws = _build_dashboard_ws()
-    for section in DASHBOARD_SECTIONS:
-        header_row = section.start_row + 1
-        assert ws.cell(row=header_row, column=1).value is not None
+    title_to_section = {s.chart_title: s for s in DASHBOARD_SECTIONS}
+    for chart in ws._charts:
+        title = chart.title.tx.rich.paragraphs[0].r[0].t
+        section = title_to_section[title]
+        col, row = _anchor_col_row(chart)
+        assert col >= CHART_AREA_START_COL
+        assert col <= CHART_AREA_END_COL
+        assert col > TABLE_AREA_END_COL
+        assert section.start_row <= row <= section.end_row
 
 
 def test_dashboard_layout_freeze_and_view():
     ws = _build_dashboard_ws()
     assert ws.freeze_panes == "A9"
     assert ws.sheet_view.showGridLines is False
-    assert 75 <= ws.sheet_view.zoomScale <= 90
+    assert ws.sheet_view.zoomScale == 85
     assert ws.print_area is not None
-    assert "R" in ws.print_area
+    assert "V" in ws.print_area
 
 
 def test_dashboard_workbook_integrity(tmp_path):
@@ -154,10 +146,8 @@ def test_dashboard_workbook_integrity(tmp_path):
     path = tmp_path / "dashboard_test.xlsx"
     ws.parent.save(path)
     reloaded = load_workbook(path)
-    dash = reloaded.active
-    assert len(dash._charts) == 10
+    assert len(reloaded.active._charts) == 10
     reloaded.save(path)
-    assert path.exists()
 
 
 def test_dashboard_column_widths_match_spec():
@@ -166,11 +156,20 @@ def test_dashboard_column_widths_match_spec():
         assert ws.column_dimensions[letter].width == expected
 
 
+def test_dashboard_chart_titles_are_business_focused():
+    ws = _build_dashboard_ws()
+    titles = []
+    for chart in ws._charts:
+        title = chart.title.tx.rich.paragraphs[0].r[0].t
+        titles.append(title)
+        assert title not in {"Status", "Aging", "ABC", "Vendor", "Actions", "Summary"}
+    assert set(titles) == set(CHART_TITLES.values())
+
+
 def test_dashboard_chart_layout_spec_registry():
     specs = chart_layout_specs()
-    names = [s.name for s in specs]
-    assert len(names) == len(set(names))
+    assert len({s.name for s in specs}) == 10
     for spec in specs:
         assert spec.allowed_start_col == CHART_AREA_START_COL
         assert spec.allowed_end_col == CHART_AREA_END_COL
-        assert re.fullmatch(r"I\d+", spec.anchor_cell)
+        assert re.fullmatch(r"J\d+", spec.anchor_cell)

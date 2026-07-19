@@ -82,7 +82,7 @@ def test_dashboard_charts_and_links(tmp_path: Path):
     try:
         dash = wb["Inventory Dashboard"]
         assert len(dash._charts) == 10
-        assert dash.cell(row=1, column=18).hyperlink is not None
+        assert dash.cell(row=1, column=22).hyperlink is not None
         assert dash.page_setup.orientation == dash.ORIENTATION_LANDSCAPE
     finally:
         wb.close()
