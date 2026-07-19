@@ -7,8 +7,6 @@ from src.data_generation.generate_inventory import generate_inventory_data
 from src.main import generate_all_data
 from src.sheets.dashboard_layout import (
     CHART_AREA_START_COL,
-    CHART_HEIGHT_CM,
-    CHART_WIDTH_CM,
     DASHBOARD_CANVAS_COLS,
 )
 from src.sheets.inventory_dashboard_sheet import build
@@ -40,8 +38,8 @@ def test_inventory_dashboard_summary_tables_and_charts():
 
     assert len(ws._charts) == 10
     for chart in ws._charts:
-        assert CHART_HEIGHT_CM - 1 <= chart.height <= CHART_HEIGHT_CM + 1
-        assert CHART_WIDTH_CM - 1 <= chart.width <= CHART_WIDTH_CM + 1
+        assert 4.5 <= chart.height <= 9.5
+        assert 20 <= chart.width <= 26.5
 
     anchor_cols = []
     for chart in ws._charts:

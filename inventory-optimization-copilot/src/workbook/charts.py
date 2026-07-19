@@ -15,15 +15,16 @@ def _apply_chart_title(chart, title: str) -> None:
         chart.title.tx.rich.paragraphs[0].pPr = None
 
 
-def _apply_plot_layout(chart, *, horizontal: bool) -> None:
-    """Reserve right-side space for legend and bottom/left for axis titles."""
+def _apply_plot_layout(chart, *, horizontal: bool, hide_legend: bool = False) -> None:
+    """Reserve margin for axis titles; use full width when legend is hidden."""
+    plot_w = 0.82 if hide_legend else (0.62 if horizontal else 0.68)
     chart.layout = Layout(
         manualLayout=ManualLayout(
             layoutTarget="inner",
-            x=0.08,
-            y=0.12 if horizontal else 0.14,
-            w=0.62 if horizontal else 0.68,
-            h=0.72 if horizontal else 0.68,
+            x=0.10,
+            y=0.14 if horizontal else 0.16,
+            w=plot_w,
+            h=0.70 if horizontal else 0.68,
         )
     )
 
@@ -67,11 +68,24 @@ def _configure_axes(
     if value_axis_max is not None:
         value_axis.scaling.max = value_axis_max
 
+    value_axis.scaling.orientation = "minMax"
     if horizontal and reverse_category_order:
         category_axis.scaling.orientation = "maxMin"
+    else:
+        category_axis.scaling.orientation = "minMax"
+
+    if horizontal:
+        category_axis.axPos = "l"
+        value_axis.axPos = "b"
+        category_axis.tickLblPos = "nextTo"
+    else:
+        category_axis.axPos = "b"
+        value_axis.axPos = "l"
 
     category_axis.tickLblSkip = 1
     value_axis.majorGridlines = None
+    if value_axis_min is None and horizontal:
+        value_axis.scaling.min = 0
 
 
 def create_bar_chart(
@@ -110,7 +124,10 @@ def create_bar_chart(
     _apply_chart_title(chart, title)
     chart.title.overlay = False
 
-    chart.add_data(data_ref, titles_from_data=series_name is None)
+    chart.add_data(
+        data_ref,
+        titles_from_data=series_name is None and not hide_legend,
+    )
     chart.set_categories(categories_ref)
 
     _configure_axes(
@@ -122,7 +139,7 @@ def create_bar_chart(
         value_axis_max=value_axis_max,
         reverse_category_order=reverse_category_order,
     )
-    _apply_plot_layout(chart, horizontal=horizontal)
+    _apply_plot_layout(chart, horizontal=horizontal, hide_legend=bool(hide_legend))
     if hide_legend:
         chart.legend = None
     else:
@@ -147,6 +164,8 @@ def create_clustered_bar_chart(
     value_axis_min: float | None = None,
     value_axis_max: float | None = None,
     reverse_category_order: bool = False,
+    show_data_labels: bool = False,
+    hide_legend: bool = False,
 ) -> BarChart:
     """Build a multi-series clustered bar/column chart from one data block."""
     chart = BarChart()
@@ -170,9 +189,14 @@ def create_clustered_bar_chart(
         value_axis_max=value_axis_max,
         reverse_category_order=reverse_category_order,
     )
-    _apply_plot_layout(chart, horizontal=horizontal)
-    chart.legend.position = "r"
-    chart.legend.overlay = False
+    _apply_plot_layout(chart, horizontal=horizontal, hide_legend=hide_legend)
+    if hide_legend:
+        chart.legend = None
+    else:
+        chart.legend.position = "r"
+        chart.legend.overlay = False
+    if show_data_labels:
+        _apply_value_only_labels(chart)
     return chart
 
 

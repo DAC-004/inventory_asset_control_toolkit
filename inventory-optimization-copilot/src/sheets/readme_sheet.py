@@ -123,8 +123,9 @@ def _write_body(ws: Worksheet, row: int, text: str, row_height: float = 48) -> i
     return row + 1
 
 
-def _write_spacer(ws: Worksheet, row: int, height: float = 8) -> int:
+def _write_spacer(ws: Worksheet, row: int, height: float = 14) -> int:
     ws.row_dimensions[row].height = height
+    ws.row_dimensions[row].hidden = False
     return row + 1
 
 
@@ -134,8 +135,19 @@ def _write_navigation_links(ws: Worksheet, start_row: int) -> int:
     for idx, sheet_name in enumerate(sheets):
         link_row = row + idx // 2
         link_col = 1 if idx % 2 == 0 else 3
+        ws.row_dimensions[link_row].hidden = False
+        ws.row_dimensions[link_row].height = 18
         add_internal_sheet_link(ws, link_row, link_col, sheet_name)
-    return row + (len(sheets) + 1) // 2
+    nav_rows = (len(sheets) + 1) // 2
+    return row + nav_rows
+
+
+def _ensure_all_rows_visible(ws: Worksheet, last_row: int) -> None:
+    for row in range(1, last_row + 1):
+        dim = ws.row_dimensions[row]
+        dim.hidden = False
+        if dim.height is None or dim.height < 12:
+            dim.height = 16
 
 
 def build(ws: Worksheet, context: dict[str, Any]) -> None:
@@ -238,6 +250,7 @@ def build(ws: Worksheet, context: dict[str, Any]) -> None:
         row_height=72,
     )
 
+    _ensure_all_rows_visible(ws, row - 1)
     set_column_widths(ws, {"A": 24, "B": 24, "C": 24, "D": 24})
     ws.sheet_view.showGridLines = False
     set_portrait_print(ws, fit_width=1, fit_height=0, repeat_header_rows="1:3")

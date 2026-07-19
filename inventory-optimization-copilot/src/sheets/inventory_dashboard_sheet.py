@@ -31,9 +31,7 @@ from src.services.kpi_service import dashboard_kpi_definitions
 from src.sheets.dashboard_layout import (
     CHART_ANCHOR_COL,
     CHART_AREA_START_COL,
-    CHART_HEIGHT_CM,
     CHART_LABEL_COL,
-    CHART_SERIES_NAMES,
     CHART_WIDTH_CM,
     DASHBOARD_CANVAS_COLS,
     DASHBOARD_COLUMN_WIDTHS,
@@ -43,6 +41,7 @@ from src.sheets.dashboard_layout import (
     SECTION_TITLE_HEIGHT,
     TABLE_AREA_END_COL,
     TABLE_HEADER_HEIGHT,
+    chart_height_cm,
     compute_section_layouts,
 )
 from src.workbook.charts import (
@@ -84,6 +83,8 @@ def _apply_canvas_columns(ws: Worksheet) -> None:
         dim.hidden = False
         if dim.width is None or dim.width <= 0:
             dim.width = DASHBOARD_COLUMN_WIDTHS.get(letter, 12)
+    # Column H holds chart category helpers — keep off-screen for reviewers.
+    ws.column_dimensions[get_column_letter(CHART_LABEL_COL)].hidden = True
 
 
 def _apply_kpi_value_format(
@@ -526,21 +527,20 @@ def _add_section_chart(
     if meta["last_data_row"] < meta["first_data_row"]:
         return
 
-    anchor = f"{CHART_ANCHOR_COL}{meta['header_row']}"
-    w, h = CHART_WIDTH_CM, CHART_HEIGHT_CM
-    hr = meta["header_row"]
-    lr = meta["last_data_row"]
-    series_name = CHART_SERIES_NAMES.get(section.key)
+    header_row = meta["header_row"]
+    first_row = meta["first_data_row"]
+    last_row = meta["last_data_row"]
+    anchor = f"{CHART_ANCHOR_COL}{header_row}"
+    w = CHART_WIDTH_CM
+    h = chart_height_cm(section.end_row, header_row)
 
     if section.key in {"top_excess", "transfer_benefit"}:
-        cats = make_category_reference(
-            ws, meta["chart_label_col"], meta["first_data_row"], lr
-        )
+        cats = make_category_reference(ws, meta["chart_label_col"], first_row, last_row)
     else:
-        cats = make_category_reference(ws, 1, meta["first_data_row"], lr)
+        cats = make_category_reference(ws, 1, first_row, last_row)
 
     if section.key == "location":
-        data = make_data_reference(ws, 2, hr, lr)
+        data = make_data_reference(ws, 2, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -554,10 +554,10 @@ def _add_section_chart(
             category_axis_title="Location",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "status":
-        data = make_data_reference(ws, 3, hr, lr)
+        data = make_data_reference(ws, 3, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -571,10 +571,10 @@ def _add_section_chart(
             category_axis_title="Inventory Status",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "aging":
-        data = make_data_reference(ws, 3, hr, lr)
+        data = make_data_reference(ws, 3, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -588,10 +588,10 @@ def _add_section_chart(
             category_axis_title="Aging Bucket",
             reverse_category_order=False,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "top_excess":
-        data = make_data_reference(ws, 6, hr, lr)
+        data = make_data_reference(ws, 6, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -605,10 +605,10 @@ def _add_section_chart(
             category_axis_title="Inventory Item",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "abc_usage":
-        data = make_data_reference(ws, 3, hr, lr)
+        data = make_data_reference(ws, 3, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -622,10 +622,10 @@ def _add_section_chart(
             category_axis_title="ABC Class",
             reverse_category_order=False,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "replenishment":
-        data = make_data_reference(ws, 4, hr, lr)
+        data = make_data_reference(ws, 4, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -639,10 +639,10 @@ def _add_section_chart(
             category_axis_title="Replenishment Status",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "fill_rate":
-        data = make_data_reference(ws, 2, hr, lr, max_col=4)
+        data = make_data_reference(ws, 2, header_row, last_row, max_col=4)
         add_clustered_bar_chart(
             ws,
             section.chart_title,
@@ -657,9 +657,11 @@ def _add_section_chart(
             value_axis_min=0,
             value_axis_max=1,
             reverse_category_order=True,
+            show_data_labels=True,
+            hide_legend=True,
         )
     elif section.key == "vendor_risk":
-        data = make_data_reference(ws, 3, hr, lr)
+        data = make_data_reference(ws, 3, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -673,10 +675,10 @@ def _add_section_chart(
             category_axis_title="Vendor Risk Class",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "transfer_benefit":
-        data = make_data_reference(ws, 6, hr, lr)
+        data = make_data_reference(ws, 6, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -690,10 +692,10 @@ def _add_section_chart(
             category_axis_title="Transfer Opportunity",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
     elif section.key == "action":
-        data = make_data_reference(ws, 3, hr, lr)
+        data = make_data_reference(ws, 3, first_row, last_row)
         add_bar_chart(
             ws,
             section.chart_title,
@@ -707,7 +709,7 @@ def _add_section_chart(
             category_axis_title="Recommended Action",
             reverse_category_order=True,
             show_data_labels=True,
-            series_name=series_name,
+            hide_legend=True,
         )
 
 

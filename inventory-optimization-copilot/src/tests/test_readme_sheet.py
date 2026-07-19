@@ -71,3 +71,15 @@ def test_readme_sheet_has_formatted_title_area():
     assert title_cell.value == WORKBOOK_TITLE
     assert title_cell.font.bold is True
     assert sc.COLORS["navy"] in str(title_cell.fill.start_color.rgb)
+
+
+def test_readme_has_no_hidden_rows():
+    """README should not hide any content rows."""
+    wb = Workbook()
+    ws = wb.active
+    build(ws, {"data": {}})
+
+    for row in range(1, ws.max_row + 1):
+        dim = ws.row_dimensions[row]
+        assert dim.hidden is not True
+        assert dim.height is None or dim.height >= 12

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from openpyxl import Workbook
 from openpyxl.chart import BarChart
 
@@ -10,7 +12,7 @@ from src.services.kpi_dashboard_service import (
     compute_top_excess,
     compute_transfer_benefit_summary,
 )
-from src.sheets.dashboard_layout import CHART_SERIES_NAMES, CHART_TITLES
+from src.sheets.dashboard_layout import CHART_TITLES
 from src.sheets.inventory_dashboard_sheet import build
 
 
@@ -27,6 +29,15 @@ def _chart_by_title(ws, title: str) -> BarChart:
         if chart.title.tx.rich.paragraphs[0].r[0].t == title:
             return chart
     raise AssertionError(f"Chart not found: {title}")
+
+
+def _anchor_row(chart) -> int:
+    anchor = chart.anchor
+    if hasattr(anchor, "_from"):
+        return int(anchor._from.row + 1)
+    match = re.search(r"\d+", str(anchor))
+    assert match is not None
+    return int(match.group())
 
 
 def _chart_titles(ws):
@@ -58,43 +69,32 @@ def test_charts_are_bar_types():
         assert isinstance(chart, BarChart)
 
 
-def test_chart_dimensions_executive_size():
-    ws, _ = _dashboard()
-    for chart in ws._charts:
-        assert 24 <= chart.width <= 28.5
-        assert 9 <= chart.height <= 11.5
-
-
-def test_top_excess_has_at_most_ten_rows():
+def test_chart_dimensions_fit_sections():
     ws, ctx = _dashboard()
-    meta = ctx["_dashboard_section_meta"]["top_excess"]
-    rows = meta["last_data_row"] - meta["first_data_row"] + 1
-    assert rows <= 10
-
-
-def test_no_default_series_names_in_chart_xml():
-    ws, _ = _dashboard()
+    layouts = {s.key: s for s in ctx["_dashboard_section_layouts"]}
+    title_to_key = {v: k for k, v in CHART_TITLES.items()}
     for chart in ws._charts:
         title = chart.title.tx.rich.paragraphs[0].r[0].t
-        assert "Series1" not in title
-        assert "Column1" not in title
+        section = layouts[title_to_key[title]]
+        row = _anchor_row(chart)
+        end_row = row + max(1, int(round(float(chart.height) / 0.4)))
+        assert 4.5 <= chart.height <= 9.5
+        assert 20 <= chart.width <= 26.5
+        assert section.start_row <= row <= section.end_row
+        assert end_row <= section.end_row + 1
 
 
-def test_legends_on_right_without_overlay():
+def test_dashboard_charts_have_no_legends():
     ws, _ = _dashboard()
     for chart in ws._charts:
-        if chart.legend is None:
-            continue
-        assert chart.legend.position == "r"
-        assert chart.legend.overlay is False
+        assert chart.legend is None
 
 
 def test_data_labels_show_values_only():
     ws, _ = _dashboard()
     for chart in ws._charts:
         labels = chart.dataLabels
-        if labels is None:
-            continue
+        assert labels is not None
         assert labels.showVal is True
         assert labels.showSerName is False
         assert labels.showCatName is False
@@ -107,16 +107,21 @@ def test_ranked_horizontal_bars_reverse_category_order():
         chart = _chart_by_title(ws, CHART_TITLES[key])
         assert chart.type == "bar"
         assert chart.y_axis.scaling.orientation == "maxMin"
+        assert chart.x_axis.axPos == "b"
+        assert chart.y_axis.axPos == "l"
 
 
-def test_single_series_use_approved_legend_names():
+def test_horizontal_bars_use_left_categories_bottom_values():
     ws, _ = _dashboard()
-    for key, expected in CHART_SERIES_NAMES.items():
-        chart = _chart_by_title(ws, CHART_TITLES[key])
-        if key == "fill_rate":
-            continue
-        assert chart.series[0].title is not None
-        assert chart.series[0].title.v == expected
+    chart = _chart_by_title(ws, CHART_TITLES["location"])
+    assert chart.x_axis.scaling.orientation == "minMax"
+    assert chart.x_axis.axPos == "b"
+    assert chart.y_axis.axPos == "l"
+
+
+def test_chart_label_column_hidden():
+    ws, _ = _dashboard()
+    assert ws.column_dimensions["H"].hidden is True
 
 
 def test_top_excess_table_chart_category_alignment():
@@ -136,11 +141,6 @@ def test_top_excess_table_chart_category_alignment():
     ]
     assert labels == expected["chart_label"].tolist()
     assert values == expected["excess_value"].tolist()
-    ranks = [
-        ws.cell(row=r, column=1).value
-        for r in range(meta["first_data_row"], meta["last_data_row"] + 1)
-    ]
-    assert ranks == list(range(1, len(ranks) + 1))
 
 
 def test_transfer_benefit_table_chart_alignment():

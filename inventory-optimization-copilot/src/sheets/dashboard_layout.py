@@ -16,20 +16,21 @@ KPI_START_ROW = 1
 KPI_END_ROW = 8
 FREEZE_PANE = "A9"
 SECTIONS_START_ROW = 10
-SECTION_SPACER_ROWS = 2
+SECTION_SPACER_ROWS = 3
 
-CHART_WIDTH_CM = 28.0
-CHART_HEIGHT_CM = 10.5
-CHART_MIN_WIDTH_CM = 24.0
-CHART_MAX_WIDTH_CM = 30.0
-CHART_MIN_HEIGHT_CM = 9.0
-CHART_MAX_HEIGHT_CM = 12.0
-MIN_CHART_BODY_ROWS = 12
+CHART_WIDTH_CM = 24.0
+CHART_HEIGHT_CM = 8.0
+CHART_MIN_WIDTH_CM = 20.0
+CHART_MAX_WIDTH_CM = 26.0
+CHART_MIN_HEIGHT_CM = 4.5
+CHART_MAX_HEIGHT_CM = 9.0
+CHART_ROW_CM = 0.38
+MIN_CHART_BODY_ROWS = 8
 
 AS_OF_CONTEXT = "As of July 1, 2026"
 
 DASHBOARD_COLUMN_WIDTHS: dict[str, float] = {
-    "A": 16,
+    "A": 20,
     "B": 22,
     "C": 16,
     "D": 16,
@@ -159,7 +160,8 @@ def compute_section_layouts(
     current = start_row
     for section_def in DASHBOARD_SECTION_DEFS:
         data_rows = max(1, data_row_counts.get(section_def.key, 1))
-        body_rows = max(data_rows, MIN_CHART_BODY_ROWS)
+        chart_rows = max(int(CHART_HEIGHT_CM / CHART_ROW_CM) + 1, 8)
+        body_rows = max(data_rows, chart_rows)
         section_rows = 1 + 1 + 1 + body_rows  # title + context + header + data
         end_row = current + section_rows - 1
         layouts.append(
@@ -177,6 +179,12 @@ def compute_section_layouts(
         )
         current = end_row + SECTION_SPACER_ROWS + 1
     return layouts
+
+
+def chart_height_cm(section_end_row: int, header_row: int) -> float:
+    """Cap chart height so it stays inside the section row block."""
+    available_rows = max(1, section_end_row - header_row + 1)
+    return min(CHART_HEIGHT_CM, max(4.5, available_rows * CHART_ROW_CM))
 
 
 def chart_layout_specs_from_layouts(

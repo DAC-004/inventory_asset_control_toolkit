@@ -93,7 +93,10 @@ def test_dashboard_layout_sections_and_columns():
     for col_idx in range(1, DASHBOARD_CANVAS_COLS + 1):
         letter = get_column_letter(col_idx)
         dim = ws.column_dimensions[letter]
-        assert dim.hidden is False
+        if letter == "H":
+            assert dim.hidden is True
+        else:
+            assert dim.hidden is False
         assert (dim.width or 0) > 0
 
     for letter in "EFGHIJKLMNOP":
@@ -108,10 +111,12 @@ def test_dashboard_layout_no_chart_table_overlap():
         title = chart.title.tx.rich.paragraphs[0].r[0].t
         section = title_to_section[title]
         col, row = _anchor_col_row(chart)
+        end_row = row + max(1, int(round(float(chart.height) / 0.4)))
         assert col >= CHART_AREA_START_COL
         assert col <= CHART_AREA_END_COL
         assert col > TABLE_AREA_END_COL
         assert section.start_row <= row <= section.end_row
+        assert end_row <= section.end_row + 1
 
 
 def test_dashboard_layout_freeze_and_view():
