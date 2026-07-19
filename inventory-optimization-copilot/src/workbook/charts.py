@@ -15,27 +15,58 @@ def _apply_chart_title(chart, title: str) -> None:
         chart.title.tx.rich.paragraphs[0].pPr = None
 
 
-def _apply_plot_layout(chart, *, horizontal: bool, hide_legend: bool = False) -> None:
+def _apply_plot_layout(
+    chart,
+    *,
+    horizontal: bool,
+    hide_legend: bool = False,
+    compact: bool = False,
+) -> None:
     """Reserve margin for axis titles; use full width when legend is hidden."""
-    plot_w = 0.82 if hide_legend else (0.62 if horizontal else 0.68)
+    plot_w = 0.88 if hide_legend else (0.62 if horizontal else 0.68)
+    plot_h = 0.78 if hide_legend else (0.70 if horizontal else 0.68)
+    if compact:
+        plot_w = 0.72
+        plot_h = 0.68
     chart.layout = Layout(
         manualLayout=ManualLayout(
             layoutTarget="inner",
-            x=0.10,
-            y=0.14 if horizontal else 0.16,
+            x=0.08,
+            y=0.10 if horizontal else 0.12,
             w=plot_w,
-            h=0.70 if horizontal else 0.68,
+            h=plot_h,
         )
     )
 
 
-def _apply_value_only_labels(chart) -> None:
-    chart.dataLabels = DataLabelList()
-    chart.dataLabels.showVal = True
-    chart.dataLabels.showSerName = False
-    chart.dataLabels.showCatName = False
-    chart.dataLabels.showLegendKey = False
-    chart.dataLabels.dLblPos = "outEnd"
+def _apply_value_only_labels(
+    chart,
+    *,
+    horizontal: bool = False,
+    position: str | None = None,
+    number_format: str | None = None,
+) -> None:
+    """Apply data labels at series level — required for Excel to render them."""
+    if position is None:
+        position = "outEnd" if horizontal else "t"
+
+    def _configure(label_list: DataLabelList) -> None:
+        label_list.showVal = True
+        label_list.showSerName = False
+        label_list.showCatName = False
+        label_list.showLegendKey = False
+        label_list.dLblPos = position
+        if number_format:
+            from openpyxl.chart.data_source import NumFmt
+
+            label_list.numFmt = NumFmt(formatCode=number_format, sourceLinked=False)
+
+    label_list = DataLabelList()
+    _configure(label_list)
+    chart.dataLabels = label_list
+    for series in chart.series:
+        series.dLbls = DataLabelList()
+        _configure(series.dLbls)
 
 
 def _apply_legend_right(chart, series_name: str | None = None) -> None:
@@ -146,7 +177,7 @@ def create_bar_chart(
         _apply_legend_right(chart, series_name)
 
     if show_data_labels:
-        _apply_value_only_labels(chart)
+        _apply_value_only_labels(chart, horizontal=horizontal)
 
     return chart
 
@@ -166,6 +197,8 @@ def create_clustered_bar_chart(
     reverse_category_order: bool = False,
     show_data_labels: bool = False,
     hide_legend: bool = False,
+    compact_labels: bool = False,
+    label_number_format: str | None = None,
 ) -> BarChart:
     """Build a multi-series clustered bar/column chart from one data block."""
     chart = BarChart()
@@ -189,14 +222,22 @@ def create_clustered_bar_chart(
         value_axis_max=value_axis_max,
         reverse_category_order=reverse_category_order,
     )
-    _apply_plot_layout(chart, horizontal=horizontal, hide_legend=hide_legend)
+    _apply_plot_layout(
+        chart, horizontal=horizontal, hide_legend=hide_legend, compact=compact_labels
+    )
     if hide_legend:
         chart.legend = None
     else:
         chart.legend.position = "r"
         chart.legend.overlay = False
     if show_data_labels:
-        _apply_value_only_labels(chart)
+        label_pos = "ctr" if compact_labels else ("outEnd" if horizontal else "t")
+        _apply_value_only_labels(
+            chart,
+            horizontal=horizontal,
+            position=label_pos,
+            number_format=label_number_format,
+        )
     return chart
 
 

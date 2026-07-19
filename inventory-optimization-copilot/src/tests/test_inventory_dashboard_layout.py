@@ -116,7 +116,7 @@ def test_dashboard_layout_no_chart_table_overlap():
         assert col <= CHART_AREA_END_COL
         assert col > TABLE_AREA_END_COL
         assert section.start_row <= row <= section.end_row
-        assert end_row <= section.end_row + 1
+        assert end_row <= section.end_row - 2
 
 
 def test_dashboard_layout_freeze_and_view():

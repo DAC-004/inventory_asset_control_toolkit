@@ -399,9 +399,9 @@ def _section_dataframes(
         "fill_rate": (
             [
                 "Location",
-                "Unit Fill Rate (%)",
-                "Line Fill Rate (%)",
-                "Order Fill Rate (%)",
+                "Unit FR (%)",
+                "Line FR (%)",
+                "Order FR (%)",
                 "Service Status",
             ],
             compute_fill_rate_by_location(data),
@@ -653,12 +653,14 @@ def _add_section_chart(
             height=h,
             horizontal=True,
             value_axis_title="Fill Rate (%)",
-            category_axis_title="Location",
+            category_axis_title=None,
             value_axis_min=0,
-            value_axis_max=1,
+            value_axis_max=1.05,
             reverse_category_order=True,
             show_data_labels=True,
             hide_legend=True,
+            compact_labels=True,
+            label_number_format="0%",
         )
     elif section.key == "vendor_risk":
         data = make_data_reference(ws, 3, first_row, last_row)

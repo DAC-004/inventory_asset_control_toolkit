@@ -38,8 +38,8 @@ def test_inventory_dashboard_summary_tables_and_charts():
 
     assert len(ws._charts) == 10
     for chart in ws._charts:
-        assert 4.5 <= chart.height <= 9.5
-        assert 20 <= chart.width <= 26.5
+        assert 8 <= chart.height <= 12.5
+        assert 22 <= chart.width <= 28.5
 
     anchor_cols = []
     for chart in ws._charts:

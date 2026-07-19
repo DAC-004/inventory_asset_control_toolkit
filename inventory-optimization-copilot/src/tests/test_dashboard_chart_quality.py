@@ -78,10 +78,10 @@ def test_chart_dimensions_fit_sections():
         section = layouts[title_to_key[title]]
         row = _anchor_row(chart)
         end_row = row + max(1, int(round(float(chart.height) / 0.4)))
-        assert 4.5 <= chart.height <= 9.5
-        assert 20 <= chart.width <= 26.5
+        assert 8.0 <= chart.height <= 12.5
+        assert 22 <= chart.width <= 28.5
         assert section.start_row <= row <= section.end_row
-        assert end_row <= section.end_row + 1
+        assert end_row <= section.end_row - 2
 
 
 def test_dashboard_charts_have_no_legends():
@@ -90,15 +90,15 @@ def test_dashboard_charts_have_no_legends():
         assert chart.legend is None
 
 
-def test_data_labels_show_values_only():
+def test_data_labels_applied_to_each_series():
     ws, _ = _dashboard()
     for chart in ws._charts:
-        labels = chart.dataLabels
-        assert labels is not None
-        assert labels.showVal is True
-        assert labels.showSerName is False
-        assert labels.showCatName is False
-        assert labels.showLegendKey is False
+        assert chart.dataLabels is not None
+        assert chart.dataLabels.showVal is True
+        for series in chart.series:
+            assert series.dLbls is not None
+            assert series.dLbls.showVal is True
+            assert series.dLbls.showSerName is False
 
 
 def test_ranked_horizontal_bars_reverse_category_order():
@@ -111,12 +111,28 @@ def test_ranked_horizontal_bars_reverse_category_order():
         assert chart.y_axis.axPos == "l"
 
 
+def test_fill_rate_chart_uses_compact_inside_labels():
+    ws, _ = _dashboard()
+    chart = _chart_by_title(ws, CHART_TITLES["fill_rate"])
+    assert len(chart.series) == 3
+    for series in chart.series:
+        assert series.dLbls.dLblPos == "ctr"
+
+
 def test_horizontal_bars_use_left_categories_bottom_values():
     ws, _ = _dashboard()
     chart = _chart_by_title(ws, CHART_TITLES["location"])
     assert chart.x_axis.scaling.orientation == "minMax"
     assert chart.x_axis.axPos == "b"
     assert chart.y_axis.axPos == "l"
+
+
+def test_section_spacer_is_two_rows():
+    ws, ctx = _dashboard()
+    layouts = ctx["_dashboard_section_layouts"]
+    for prev, nxt in zip(layouts, layouts[1:], strict=False):
+        gap = nxt.start_row - prev.end_row - 1
+        assert gap == 2
 
 
 def test_chart_label_column_hidden():
